@@ -36,8 +36,8 @@ if (isset($_POST['reg_user'])) {
   if (count($errors) == 0) {
   	$password = md5($password_1);//encrypt the password before saving in the database
 
-  	$query = "INSERT INTO users (username, email, password,forgot) 
-  			  VALUES('$username', '$email', '$password','$code')";
+  	$query = "INSERT INTO users (username, email, password) 
+  			  VALUES('$username', '$email', '$password')";
   	mysqli_query($db, $query);
   	$_SESSION['username'] = $username;
   	$_SESSION['success'] = "You are now logged in";
@@ -74,7 +74,7 @@ if (isset($_POST['login_user'])) {
   if (isset($_POST['reset_pwd']) && ($_POST['email']!="")) {
     # code...
     $email=trim($_POST['email']); // get email address from user form
-    $code=md5(uniqid(true)); // random alphernumeric character store in $code variable
+    // $code=md5(uniqid(true)); // random alphernumeric character store in $code variable
     
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
   
@@ -112,5 +112,21 @@ if (isset($_POST['login_user'])) {
    }
    $db->close();
   
+   //submit feedback
+   if (isset($_POST['save'])) {
+    // receive all input values from the form
+    $title = mysqli_real_escape_string($db, $_POST['title']);
+    $comment = mysqli_real_escape_string($db, $_POST['comments']);
+    
+    // $password_1 = mysqli_real_escape_string($db, $_POST['password_1']);
+  
+    // form validation: ensure that the form is correctly filled ...
+    // by adding (array_push()) corresponding error unto $errors array
+    // if (empty($username)) { array_push($errors, "Username is required"); }
+    // if (empty($email)) { array_push($errors, "Email is required"); }
+    // if (empty($password_1)) { array_push($errors, "Password is required"); }
+    // if ($password_1 != $password_2) {
+    // array_push($errors, "The two passwords do not match");
+    }
   
   ?>
