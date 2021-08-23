@@ -1,4 +1,4 @@
-<?php include('config.php') ?>
+
 <?php include('server.php') ?>
 <!DOCTYPE html>
 <html>

@@ -1,22 +1,29 @@
+<?php	include('server.php');?>
 <?php 
-  session_start(); 
 
-  if (!isset($_SESSION['username'])) {
-  	$_SESSION['msg'] = "You must log in first";
-  	header('location: login.php');
-  }
-  if (isset($_GET['logout'])) {
-  	session_destroy();
-  	unset($_SESSION['username']);
-  	header("location: login.php");
-  }
+
+	if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 600)) {
+		// last request was more than 30 minutes ago
+		session_unset();     // unset $_SESSION variable for the run-time 
+		session_destroy();   // destroy session data in storage
+	}
+	$_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
+
+	if (!isset($_SESSION['username'])) {
+		header('location: login.php');
+	}
+	if (isset($_GET['logout'])) {
+		session_destroy();
+		unset($_SESSION['username']);
+		header("location: login.php");
+	}
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 	<title>Home</title>
-	<link rel="stylesheet" type="text/css" href="styles/userHome.scss">
-	<link rel="stylesheet" type="text/css" href="styles/form.css">
+	<link rel="stylesheet" type="text/css" href="styles/userHome.css">
+	<link rel="stylesheet" type="text/css" href="styles/form.scss">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
 	<script src="scripts/main.js"></script>
 	<script>
@@ -32,6 +39,23 @@
 			document.getElementById("addfeedback").style.display="block"; 
 			document.getElementById("form").style.display="none"; 
 		}
+		function uploadfile() { 
+			if(document.getElementById("largefile").checked){
+				document.getElementById("reused_form").style.display="block"; 
+				document.getElementById("used_form").style.display="none";
+				document.getElementById("nolargefile").checked= true;
+			}
+		} 
+		function uploadtext() { 
+			if(!document.getElementById("nolargefile").checked){
+				document.getElementById("used_form").style.display="block"; 
+				document.getElementById("reused_form").style.display="none";
+				document.getElementById("largefile").checked= false;
+			} 
+			else{
+			}
+		} 
+
 	</script>
 </head>
 <body>
@@ -51,7 +75,7 @@
     <!-- logged in user information -->
 <?php  if (isset($_SESSION['username'])) : ?>
 
-<header class="nav-page-header">
+<header  class="nav-page-header">
   <nav>
     <ul class="admin-menu">
       <li class="menu-heading">
@@ -75,43 +99,69 @@
 <section class="page-content">
 		<div id="form" class="container">
             <div class="row " style="margin-top: 50px">
-                <div class="col-md-6 col-md-offset-3 form-container">
+                <div  class="col-md-6 col-md-offset-3 form-container">
                     <h2>Feedback</h2> 
                     <p> Please provide your feedback below: </p>
-                    <form role="form" action="index.php" method="post" id="reused_form"  enctype=&quot;multipart/form-data&quot;>
+                    <form role="form" action="index.php" method="post" id="used_form"  >
+						<?php include('errors.php'); ?>
 						<div class="row">
                             <div class="col-sm-12 form-group">
-                                <label for="comments"> Title</label>
-                                <input class="form-control" type="text" name="title" id="title" placeholder="Your title"/>
+                                <label for="title"> Title</label>
+                                <input required class="form-control" type="text" name="title" id="title" placeholder="Your title"/>
                             </div>
                         </div>
-						<div class="row">
+						<div id="comments"  class="row">
                             <div class="col-sm-12 form-group">
                                 <label for="comments"> Comments</label>
-                                <textarea class="form-control" type="textarea" name="comments" id="comments" placeholder="Your Comments" maxlength="6000" rows="7"></textarea>
+                                <textarea required class="form-control" type="textarea" name="comments" id="comments" placeholder="Your Comments" maxlength="6000" rows="7"></textarea>
                             </div>
                         </div>
 						<div class="row">
                             <div class="col-sm-12 form-group">
-                            <input name="pdf" type="file" id="file" class="feedback-input">
-						</div>
+                                <input onclick="uploadfile()" type="checkbox" name="largefile" id="largefile" class="largefile" value="file"/>
+								<label for="largefile"> I want to upload a pdf file</label>
+                            </div>
                         </div>
-						
-                        <p class="file">
-                        </p>
                         <div class="row">
                             <div class="col-sm-12 form-group">
-                                <button type="submit" class="btn btn-lg btn-block postbtn" name="save">Post </button>
+                                <button type="submit" class="btn btn-lg btn-block postbtn" name="saveTEXT">Post </button>
                             </div>
                         </div>
                     </form>
+
+					<form style="display: none;" role="form" action="index.php" method="post" id="reused_form"  enctype="multipart/form-data">
+						<?php include('errors.php'); ?>
+						<div class="row">
+                            <div class="col-sm-12 form-group">
+                                <label for="title"> Title</label>
+                                <input required class="form-control" type="text" name="title" id="title" placeholder="Your title"/>
+                            </div>
+                        </div>
+						<div class="row">
+                            <div class="col-sm-12 form-group">
+                                <input checked onclick="uploadtext()" type="checkbox" name="nolargefile" id="nolargefile" class="largefile" value="file"/>
+								<label for="nolargefile"> I want to upload a pdf file</label>
+                            </div>
+                        </div>
+						<div id="fileupload" class="row">
+                            <div class="col-sm-12 form-group">
+                            	<input name="file" type="file" id="file" class="feedback-input">
+							</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 form-group">
+                                <button type="submit" class="btn btn-lg btn-block postbtn" name="savePDF">Post </button>
+                            </div>
+                        </div>
+                    </form>
+                    
                     <div id="success_message" style="width:100%; height:100%; display:none; "> <h3>Posted your feedback successfully!</h3> </div>
                     <div id="error_message" style="width:100%; height:100%; display:none; "> <h3>Error</h3> Sorry there was an error sending your form. </div>
                 </div>
             </div>
         </div>
             
-	<section id="lists" class="grid">
+	<section id="lists" class="grid" style="display: none;">
 		<article></article>
 		<article></article>
 		<article></article>

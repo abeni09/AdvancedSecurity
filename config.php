@@ -9,5 +9,8 @@ $code=md5(uniqid(true));
 
 // connect to the database
 $db = mysqli_connect('localhost', 'root', '', 'helpmycitydb');
+$readDB=mysqli_connect('localhost','reader','Joq0sPVxv5vpPUSV','helpmycitydb');
+$writeDB=mysqli_connect('localhost','writer','PAxp1lmRkjMoykdC','helpmycitydb');
+$deleteDB=mysqli_connect('localhost','deleter','9ePJhCa9o9QMBo09','helpmycitydb');
 
 ?>
