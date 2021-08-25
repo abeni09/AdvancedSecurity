@@ -27,7 +27,7 @@
 		$queryq = "SELECT * FROM users WHERE username='$sessionuser'";
 		$results = mysqli_query($readDB, $queryq);
 		$user = mysqli_fetch_assoc($results);
-		$sessionEmpty='';
+		// $sessionEmpty='';
         $userUpdated=mysqli_query($db,$reset);
 
 		if(md5(session_id()) == $user['sessionID']){
@@ -48,9 +48,9 @@
 			}
 	
 		}
-		else{
-			header("location: 403.php");
-		}
+		// else{
+		// 	header("location: 403.php");
+		// }
 	}
 ?>
 <!DOCTYPE html>
@@ -112,15 +112,14 @@
 $sessionID=session_id();
 $sessionIDCrypted =md5($sessionID);
 $sessionuser=$_SESSION['username'];
-$insertSessionID="UPDATE users SET sessionID = '$sessionIDCrypted' WHERE username='$sessionuser'";
-// $queryq = "SELECT * FROM users WHERE username='$sessionuser'";
-// $results = mysqli_query($readDB, $queryq);
-// if(mysqli_num_rows($results)== 1):
-	if (mysqli_query($db,$insertSessionID)) :
-		// $user = mysqli_fetch_assoc($results);
-		// if (isset($sessionuser)) :
-			// array_push($errors,)
-			// if(md5($user['sessionID'])===$sessionID);
+// $insertSessionID="UPDATE users SET sessionID = '$sessionIDCrypted' WHERE username='$sessionuser'";
+$queryq = "SELECT * FROM users WHERE username='$sessionuser'";
+$results = mysqli_query($readDB, $queryq);
+if(mysqli_num_rows($results)== 1):
+	// if (mysqli_query($db,$insertSessionID)) :
+		$user = mysqli_fetch_assoc($results);
+		if (isset($_SESSION['username'])) :
+			if(md5($user['sessionID'])===$sessionIDCrypted);
  
 	
 ?>
@@ -223,15 +222,15 @@ $insertSessionID="UPDATE users SET sessionID = '$sessionIDCrypted' WHERE usernam
 </section>
 <?php 
 
-else:
-	header("location: 403.php");
+// else:
+// 	header("location: 403.php");
 
 endif;
 
 // else:
 // 	header("location: 403.php");
 
-// endif;
+endif;
 
 // else:
 // 	header("location: 403.php");
