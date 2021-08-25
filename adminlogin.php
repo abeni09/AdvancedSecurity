@@ -3,7 +3,7 @@
 <html>
 <head>
   <title>Help My City</title>
-  <link rel="stylesheet" type="text/css" href="/styles/signupLogin.scss">
+  <link rel="stylesheet" type="text/css" href="/styles/signupLogin.css">
 </head>
 <body>
   <div class="header">
@@ -19,6 +19,10 @@
   	<div class="input-group">
   		<label>Password</label>
   		<input required type="password" name="password">
+  	</div>
+  	<div class="input-group">
+  		<label>Secret Word</label>
+  		<input required type="password" name="sw">
   	</div>
   	<div class="input-group">
   		<button type="submit" class="btn" name="login_admin">Login</button>

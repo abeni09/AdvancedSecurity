@@ -3,7 +3,7 @@
 <html>
 <head>
   <title>Help My City</title>
-  <link rel="stylesheet" type="text/css" href="/styles/signupLogin.scss">
+  <link rel="stylesheet" type="text/css" href="/styles/signupLogin.css">
 </head>
 <body>
   <div class="header">
@@ -11,7 +11,10 @@
   </div>
 	 
   <form method="post" action="login.php">
-  	<?php include('errors.php');?>
+  	<?php include('errors.php');
+	 array_push($errors,session_id()) 
+	  ?>
+
   	<div class="input-group">
   		<label>Username</label>
   		<input required type="text" name="username" >

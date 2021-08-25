@@ -4,7 +4,7 @@
 <html>
 <head>
     <title>Update Password</title>
-  <link rel="stylesheet" type="text/css" href="/styles/signupLogin.scss">
+  <link rel="stylesheet" type="text/css" href="/styles/signupLogin.css">
 </head>
 <body>
 <?php

@@ -6,6 +6,7 @@
 		// last request was more than 30 minutes ago
 		session_unset();     // unset $_SESSION variable for the run-time 
 		session_destroy();   // destroy session data in storage
+		array_push($errors,"You have been inactive for a while now. Please log in again");
 	}
 	$_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
 
@@ -13,9 +14,35 @@
 		header('location: login.php');
 	}
 	if (isset($_GET['logout'])) {
-		session_destroy();
-		unset($_SESSION['username']);
-		header("location: login.php");
+		$sessionuser=$_SESSION['username'];
+		$reset="UPDATE users SET sessionID = '' WHERE username='$sessionuser'";
+		$queryq = "SELECT * FROM users WHERE username='$sessionuser'";
+		$results = mysqli_query($readDB, $queryq);
+		$user = mysqli_fetch_assoc($results);
+		$sessionEmpty='';
+        $userUpdated=mysqli_query($db,$reset);
+
+		if(md5(session_id()) == $user['sessionID']){
+			if($userUpdated){
+				$_SESSION = array();
+				if (ini_get("session.use_cookies")) {
+					$params = session_get_cookie_params();
+					setcookie(session_name(), '', time() - 42000);
+				}
+				// session_unset();
+				session_destroy();
+				// unset($_SESSION['username']);
+				// unset(session_id());
+				header("location: login.php");
+			}
+			else{
+
+			}
+	
+		}
+		else{
+			header("location: 403.php");
+		}
 	}
 ?>
 <!DOCTYPE html>
@@ -23,8 +50,8 @@
 <head>
 	<title>Home</title>
 	<link rel="stylesheet" type="text/css" href="styles/userHome.css">
-	<link rel="stylesheet" type="text/css" href="styles/form.scss">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
+	<link rel="stylesheet" type="text/css" href="styles/form.css">
+	<link rel="stylesheet" href="styles/bootstrap.css" >
 	<script src="scripts/main.js"></script>
 	<script>
 		function displayForm() { 
@@ -73,7 +100,22 @@
 <?php endif ?>
 
     <!-- logged in user information -->
-<?php  if (isset($_SESSION['username'])) : ?>
+<?php
+$sessionID=session_id();
+$sessionIDCrypted =md5($sessionID);
+$sessionuser=$_SESSION['username'];
+$insertSessionID="UPDATE users SET sessionID = '$sessionIDCrypted' WHERE username='$sessionuser'";
+// $queryq = "SELECT * FROM users WHERE username='$sessionuser'";
+// $results = mysqli_query($readDB, $queryq);
+// if(mysqli_num_rows($results)== 1):
+	if (mysqli_query($db,$insertSessionID)) :
+		// $user = mysqli_fetch_assoc($results);
+		// if (isset($sessionuser)) :
+			// array_push($errors,)
+			// if(md5($user['sessionID'])===$sessionID);
+ 
+	
+?>
 
 <header  class="nav-page-header">
   <nav>
@@ -171,6 +213,22 @@
 	</section>
 
 </section>
-<?php endif ?>
+<?php 
+
+else:
+	header("location: 403.php");
+
+endif;
+
+// else:
+// 	header("location: 403.php");
+
+// endif;
+
+// else:
+// 	header("location: 403.php");
+
+// endif;
+ ?>
   </body>
 </html>
