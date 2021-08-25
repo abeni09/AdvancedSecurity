@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `dbadmin` (
 --
 
 INSERT INTO `dbadmin` (`id`, `username`, `password`, `secretword`, `sessionID`) VALUES
-(2, 'admin', '21232f297a57a5a743894a0e4a801fc3', '21232f297a57a5a743894a0e4a801fc3', '');
+(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', '21232f297a57a5a743894a0e4a801fc3', '');
 
 -- --------------------------------------------------------
 
@@ -62,13 +62,6 @@ CREATE TABLE IF NOT EXISTS `feedbacks` (
   PRIMARY KEY (`id`),
   KEY `feedbackfrom` (`feedbackfrom`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `feedbacks`
---
-
-INSERT INTO `feedbacks` (`id`, `title`, `feedback`, `feedbackfrom`, `pdffile`) VALUES
-(3, 'qqweq', NULL, 'dave', 'DOD Lab  Assignment.pdf');
 
 -- --------------------------------------------------------
 
@@ -102,14 +95,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`),
   KEY `feeduser` (`username`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `sessionID`) VALUES
-(1, 'dave', 'dave@gmail.com', '587a56c91123a44fe2099d7f5f415919', ''),
-(3, 'dani', 'dani@gmail.com', '1241d8d73656aec1450b9e1f0532dad2', '');
 
 --
 -- Constraints for dumped tables
