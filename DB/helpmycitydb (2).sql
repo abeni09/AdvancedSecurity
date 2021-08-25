@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Aug 23, 2021 at 10:06 PM
+-- Generation Time: Aug 25, 2021 at 07:46 PM
 -- Server version: 8.0.21
 -- PHP Version: 7.3.21
 
@@ -33,16 +33,18 @@ CREATE TABLE IF NOT EXISTS `dbadmin` (
   `username` varchar(100) NOT NULL,
   `password` varchar(100) NOT NULL,
   `secretword` varchar(100) NOT NULL,
+  `sessionID` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `sessionID` (`sessionID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `dbadmin`
 --
 
-INSERT INTO `dbadmin` (`id`, `username`, `password`, `secretword`) VALUES
-(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', '21232f297a57a5a743894a0e4a801fc3');
+INSERT INTO `dbadmin` (`id`, `username`, `password`, `secretword`, `sessionID`) VALUES
+(2, 'admin', '21232f297a57a5a743894a0e4a801fc3', '21232f297a57a5a743894a0e4a801fc3', '');
 
 -- --------------------------------------------------------
 
@@ -59,7 +61,28 @@ CREATE TABLE IF NOT EXISTS `feedbacks` (
   `pdffile` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `feedbackfrom` (`feedbackfrom`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `feedbacks`
+--
+
+INSERT INTO `feedbacks` (`id`, `title`, `feedback`, `feedbackfrom`, `pdffile`) VALUES
+(3, 'qqweq', NULL, 'dave', 'DOD Lab  Assignment.pdf');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `loginlogs`
+--
+
+DROP TABLE IF EXISTS `loginlogs`;
+CREATE TABLE IF NOT EXISTS `loginlogs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `ipAddress` varbinary(16) NOT NULL,
+  `trytime` bigint NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -73,11 +96,20 @@ CREATE TABLE IF NOT EXISTS `users` (
   `username` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(100) NOT NULL,
+  `sessionID` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   KEY `feeduser` (`username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `sessionID`) VALUES
+(1, 'dave', 'dave@gmail.com', '587a56c91123a44fe2099d7f5f415919', ''),
+(3, 'dani', 'dani@gmail.com', '1241d8d73656aec1450b9e1f0532dad2', '');
 
 --
 -- Constraints for dumped tables
