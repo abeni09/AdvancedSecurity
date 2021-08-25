@@ -3,7 +3,10 @@
 
 
 	if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 600)) {
-		// last request was more than 10 minutes ago				
+		// last request was more than 10 minutes ago	
+		$sessionExpire=$_SESSION['username'];
+		$insertSessionID="UPDATE users SET sessionID = '' WHERE username='$sessionExpire'";
+		mysqli_query($db,$insertSessionID);			
 		$_SESSION = array();
 		if (ini_get("session.use_cookies")) {
 			$params = session_get_cookie_params();

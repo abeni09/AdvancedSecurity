@@ -3,7 +3,15 @@
 
 
 	if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 600)) {
-		// last request was more than 30 minutes ago
+		// last request was more than 10 minutes ago
+		$sessionExpire=$_SESSION['username'];
+		$insertSessionID="UPDATE users SET sessionID = '' WHERE username='$sessionExpire'";
+		mysqli_query($db,$insertSessionID);			
+		$_SESSION = array();
+		if (ini_get("session.use_cookies")) {
+			$params = session_get_cookie_params();
+			setcookie(session_name(), '', time() - 42000);
+		}
 		session_unset();     // unset $_SESSION variable for the run-time 
 		session_destroy();   // destroy session data in storage
 		array_push($errors,"You have been inactive for a while now. Please log in again");
