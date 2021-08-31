@@ -30,11 +30,11 @@ if (isset($_GET['id'])) {
                     else{
                         if ($userDetail['sessionID']===md5(session_id())) {
                             $delQ="DELETE from feedbacks where id='$id'";
-                            echo $userfetch['pdffile'];
-                            $files = glob('uploads/'.$userfetch['pdffile']); // get file name
-                            foreach($files as $file){ // iterate files
-                                if(is_file($file)) {
-                                    unlink($file); // delete file
+                            // echo $userfetch['pdffile'];
+                            $deletefiles = glob('uploads/'.$userfetch['pdffile']); // get file name
+                            foreach($deletefiles as $dfile){ // iterate files
+                                if(is_file($dfile)) {
+                                    unlink($dfile); // delete file
                                 }
                                 mysqli_query($db,$delQ);
                                 echo "success";
