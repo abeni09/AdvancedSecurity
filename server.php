@@ -1,7 +1,17 @@
 <?php include('config.php') ?>
 <?php
+
+
+    //ban user
+    if(isset($_POST['ban'])){
+
+      echo"user banned";
+      // array_push($errors,"Edit button clicked");
+
+    }
 // REGISTER USER
 if (isset($_POST['reg_user'])) {
+  // echo"damn";
   // receive all input values from the form
   $username = mysqli_real_escape_string($readDB, trim($_POST['username']));
   $email = mysqli_real_escape_string($readDB, trim($_POST['email']));
@@ -19,6 +29,7 @@ if (isset($_POST['reg_user'])) {
   // a user does not already exist with the same username and/or email
   $user_check_query = "SELECT * FROM users WHERE username='$username' OR email='$email' LIMIT 1";
   $result = mysqli_query($readDB, $user_check_query);
+
   $user = mysqli_fetch_assoc($result);
   
   if ($user) { // if user exists
@@ -166,8 +177,19 @@ if (isset($_POST['login_user'])) {
       array_push($errors,"Please select a file to upload.");
     }
     else{
-      if ($file_type==="application/pdf"){
-        if(move_uploaded_file($_FILES['file']['tmp_name'], $targetfolder)){          
+      if (file_exists($targetfolder)) {
+        $copy=rand(1000,9999);
+        $fileName ="[" . $copy. "]" . $fileName ;
+        $targetfolder = $targetDir . $fileName  ;
+      }
+      else{
+        
+      }
+      if(move_uploaded_file($_FILES['file']['tmp_name'], $targetfolder)){  
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $real_file_type=finfo_file($finfo, $targetfolder); 
+        finfo_close($finfo);
+        if ($real_file_type=="application/pdf"){       
           if (count($errors) == 0) { 
             $query = "INSERT INTO feedbacks (title, pdffile, feedbackfrom) 
                   VALUES('$feedtitle', '$fileName', '$feedbackfrom')";
@@ -181,11 +203,11 @@ if (isset($_POST['login_user'])) {
   
         }  
         else{
-          array_push($errors, "Sorry,error uploading your file. Please try again.");
+          array_push($errors, "You may only upload PDFs");
           }
       }
       else {
-        array_push($errors,"You may only upload PDFs");
+        array_push($errors,"Sorry,error uploading your file. Please try again.");
        }
 
     }
@@ -196,7 +218,7 @@ if (isset($_POST['login_user'])) {
 
     #admin login
     if (isset($_POST['login_admin'])) {
-      $time=time()-10;
+      $time=time()-30;
       $ipAddr=getIP();
       $laquery=mysqli_query($readDB,"SELECT * from loginlogs where trytime<$time and ipAddress='$ipAddr'");
       // $loginRow=mysqli_fetch_assoc($laquery);
@@ -229,13 +251,13 @@ if (isset($_POST['login_user'])) {
             $query = "SELECT * FROM dbadmin WHERE username='$username' AND password='$password' AND secretword='$sw'";
             $results = mysqli_query($readDB, $query);
             $updateUser="UPDATE dbadmin SET sessionID = '$sessionID' WHERE username='$username'";
-            $userUpdated=mysqli_query($db,$updateUser);
             if($total_count>=3){
-              array_push($errors,"Too many failed attempts. Please login after 10 seconds.");
+              array_push($errors,"Too many failed attempts. Please login after 30 seconds.");
             }
             else{
             if (mysqli_num_rows($results) == 1) {
-                // $admin = mysqli_fetch_assoc($results);    
+                // $admin = mysqli_fetch_assoc($results); 
+                $userUpdated=mysqli_query($db,$updateUser);   
                 if($userUpdated){
                   $_SESSION['username'] = $username;
                   mysqli_query($db,"DELETE from loginlogs where ipAddress='$ipAddr'");
@@ -258,7 +280,7 @@ if (isset($_POST['login_user'])) {
               $total_count++;
               $remAttempt=3-$total_count;
               if($remAttempt==0){
-                array_push($errors,"Too many login attempts. Please login after 10 seconds.");
+                array_push($errors,"Too many login attempts. Please login after 30 seconds.");
               }
               else{
                 array_push($errors, "You have $remAttempt tries left! ");
@@ -363,7 +385,8 @@ if (isset($_POST['login_user'])) {
     }
     //login attempt
 
-    
+    //delete feedback
+
   // $readDB->close();
   // $writeDB->close();
   // $db->close();

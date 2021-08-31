@@ -57,10 +57,11 @@
 <html>
 <head>
 	<title>Home</title>
-	<link rel="stylesheet" type="text/css" href="styles/userHome.css">
-	<link rel="stylesheet" type="text/css" href="styles/form.css">
-	<link rel="stylesheet" href="styles/bootstrap.css" >
-	<script src="scripts/main.js"></script>
+	<link rel="stylesheet" type="text/css" href="/styles/userHome.css">
+	<link rel="stylesheet" type="text/css" href="/styles/form.css">
+	<link rel="stylesheet" type="text/css" href="/styles/table.css">
+	<link rel="stylesheet" href="/styles/bootstrap.css" >
+	<script src="/scripts/main.js"></script>
 	<script>
 		function displayForm() { 
 			// document.getElementById("addfeedback").style.display="none"; 
@@ -147,31 +148,31 @@ if(mysqli_num_rows($results)== 1):
 
 <section class="page-content">
 		<div id="form" class="container">
-            <div class="row " style="margin-top: 50px">
+            <div class="rows " style="margin-top: 50px">
                 <div  class="col-md-6 col-md-offset-3 form-container">
                     <h2>Feedback</h2> 
                     <p> Please provide your feedback below: </p>
                     <form role="form" action="index.php" method="post" id="used_form"  >
 						<?php include('errors.php'); ?>
-						<div class="row">
+						<div class="rows">
                             <div class="col-sm-12 form-group">
                                 <label for="title"> Title</label>
                                 <input required class="form-control" type="text" name="title" id="title" placeholder="Your title"/>
                             </div>
                         </div>
-						<div id="comments"  class="row">
+						<div id="comments"  class="rows">
                             <div class="col-sm-12 form-group">
                                 <label for="comments"> Comments</label>
-                                <textarea required class="form-control" type="textarea" name="comments" id="comments" placeholder="Your Comments" maxlength="6000" rows="7"></textarea>
+                                <textarea style="resize: none;" required class="form-control" type="textarea" name="comments" id="comments" placeholder="Your Comments" maxlength="6000" rows="7"></textarea>
                             </div>
                         </div>
-						<div class="row">
+						<div class="rows">
                             <div class="col-sm-12 form-group">
                                 <input onclick="uploadfile()" type="checkbox" name="largefile" id="largefile" class="largefile" value="file"/>
 								<label for="largefile"> I want to upload a pdf file</label>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="s">
                             <div class="col-sm-12 form-group">
                                 <button type="submit" class="btn btn-lg btn-block postbtn" name="saveTEXT">Post </button>
                             </div>
@@ -180,24 +181,24 @@ if(mysqli_num_rows($results)== 1):
 
 					<form style="display: none;" role="form" action="index.php" method="post" id="reused_form"  enctype="multipart/form-data">
 						<?php include('errors.php'); ?>
-						<div class="row">
+						<div class="rows">
                             <div class="col-sm-12 form-group">
                                 <label for="title"> Title</label>
                                 <input required class="form-control" type="text" name="title" id="title" placeholder="Your title"/>
                             </div>
                         </div>
-						<div class="row">
+						<div class="rows">
                             <div class="col-sm-12 form-group">
                                 <input checked onclick="uploadtext()" type="checkbox" name="nolargefile" id="nolargefile" class="largefile" value="file"/>
 								<label for="nolargefile"> I want to upload a pdf file</label>
                             </div>
                         </div>
-						<div id="fileupload" class="row">
+						<div id="fileupload" class="rows">
                             <div class="col-sm-12 form-group">
                             	<input name="file" type="file" id="file" class="feedback-input">
 							</div>
                         </div>
-                        <div class="row">
+                        <div class="rows">
                             <div class="col-sm-12 form-group">
                                 <button type="submit" class="btn btn-lg btn-block postbtn" name="savePDF">Post </button>
                             </div>
@@ -209,14 +210,53 @@ if(mysqli_num_rows($results)== 1):
                 </div>
             </div>
         </div>
-            
-	<section id="lists" class="grid" style="display: none;">
-		<article></article>
-		<article></article>
-		<article></article>
-		<article></article>
-		<article></article>
-		<article></article>
+<section id="lists" style="display: none;" >
+<table id="customers">
+  <tr>
+    <th>Title</th>
+    <th>Feedback</th>
+  </tr>
+
+		<?php
+		$feeds = "SELECT * FROM feedbacks where feedbackfrom='$sessionuser'";
+		$feedresults = mysqli_query($readDB, $feeds);
+		$allfeeds=array();
+		while($onefeed = mysqli_fetch_assoc($feedresults)){
+			$allfeeds[]=$onefeed;
+		}
+		foreach($allfeeds as $onefeed){
+			?>
+			  <tr>
+				<td><?php echo $onefeed['title'] ?></td>
+				<td>
+								<?php
+								
+								$pdfortext;
+								if(empty($onefeed['feedback'])){
+									$file=$onefeed['pdffile'];
+									$pdfortext='pdf';
+									?>
+									<a download href="/uploads/<?php echo $onefeed['pdffile'] ;?>" name='download'><?php echo $onefeed['pdffile'] ;?></a>
+								<?php
+								}
+								else{
+									$pdfortext='text';
+									echo (substr($onefeed['feedback'],0,100).'...<button type="submit" class="ban" name="readmore">Read More</button>');
+							}
+							 ?>
+				</td>
+			<td>
+				<a href="review.php?id=<?php echo $onefeed['id'].'&top='.$pdfortext?>">Edit</a>
+			</td>
+			<td>
+				<a href="delete.php?id=<?php echo $onefeed['id']?>">Delete</a>
+			</td>
+			</tr>
+								
+		<?php
+		}
+		?>
+		</table>
 	</section>
 
 </section>

@@ -28,7 +28,6 @@
 		$queryq = "SELECT * FROM dbadmin WHERE username='$sessionuser'";
 		$results = mysqli_query($readDB, $queryq);
 		$user = mysqli_fetch_assoc($results);
-		// $sessionEmpty='';
         $userUpdated=mysqli_query($db,$reset);
 
 		if(md5(session_id()) == $user['sessionID']){
@@ -60,18 +59,17 @@
 	<title>Home</title>
 	<link rel="stylesheet" type="text/css" href="styles/userHome.css">
 	<link rel="stylesheet" type="text/css" href="styles/form.css">
+	<link rel="stylesheet" type="text/css" href="styles/admintable.css">
 	<link rel="stylesheet" href="styles/bootstrap.css" >
 	<script src="scripts/main.js"></script>
 	<script>
 		function displayUsers() { 
-			// document.getElementById("addfeedback").style.display="none"; 
-			document.getElementById("listusers").style.display="block"; 
-			document.getElementById("listfeedbacks").style.display="none"; 
+			document.getElementById("listallusers").style.display="block"; 
+			document.getElementById("listallfeedbacks").style.display="none"; 
 		}
-		function displayList() { 
-			// document.getElementById("listfeedbacks").style.display="none"; 
-			document.getElementById("listfeedbacs").style.display="block"; 
-			document.getElementById("listusers").style.display="none";
+		function displayFeeds() { 
+			document.getElementById("listallusers").style.display="none"; 
+			document.getElementById("listallfeedbacks").style.display="block"; 
 		}
 		function uploadfile() { 
 			if(document.getElementById("largefile").checked){
@@ -123,10 +121,10 @@ if (mysqli_num_rows($results) == 1) :
         <h3>Welcome <strong><?php echo $_SESSION['username']; ?></strong></h3>
       </li>
 	  <li>
-		  <a onclick="displayForm()" class="listusers" id="listusers" name="listusers"><h3>LIST USERS</h3></a>
+		  <a onclick="displayUsers()" class="listusers" id="listusers" name="listusers"><h3>LIST USERS</h3></a>
 	  </li>
 	  <li>
-		  <a onclick="displayList()" class="listfeedbacks" id="listfeedbacks" name="listFeedback"><h3>LIST FEEDBACKS</h3></a>
+		  <a onclick="displayFeeds()" class="listfeedbacks" id="listfeedbacks" name="listFeedback"><h3>LIST FEEDBACKS</h3></a>
 	  </li>
 	  <li>
 	  	<a href="admin.php?logout='1'" style="color: red;"><h3>Logout</h3></a>
@@ -137,23 +135,114 @@ if (mysqli_num_rows($results) == 1) :
 
 
 <section class="page-content">
+	<section id="listallusers">
+	<div class="limiter">
+		<div class="container-table100">
+			<div class="wrap-table100">
+					<div class="table">
 
-	<section id="listusers" class="grid">
-		<article></article>
-		<article></article>
-		<article></article>
-		<article></article>
-		<article></article>
-		<article></article>
+						<div class="row header">
+							<div class="cell">
+								Username
+							</div>
+							<div class="cell">
+								Email
+							</div>
+						</div>
+
+
+		<?php
+		$users = "SELECT * FROM users";
+		$userresults = mysqli_query($readDB, $users);
+		$allusers=array();
+		while($oneuser = mysqli_fetch_assoc($userresults)){
+			$allusers[]=$oneuser;
+		}
+		foreach($allusers as $oneuser){
+			?>
+			
+
+			<div class="row">
+							<div class="cell" data-title="Full Name">
+								<?php echo $oneuser['username'] ?>
+							</div>
+							<div class="cell" data-title="Job Title">
+								<?php echo $oneuser['email'] ?>
+							</div>
+							<div class="cell" data-title="">
+								<button type="submit" name="ban" id="ban" class="ban">Ban</button>
+							</div>
+						</div>
+		<?php
+		}
+		?>
+					</div>
+				</div>
+			</div>
+		</div>
 	</section>
+	<section id="listallfeedbacks" style="display: none;" >
+	<div class="limiter" >
+		<div class="container-table100">
+			<div class="wrap-table100">
+					<div class="table">
 
-	<section id="listfeedbacks" class="grid" style="display: none;">
-		<article></article>
-		<article></article>
-		<article></article>
-		<article></article>
-		<article></article>
-		<article></article>
+						<div class="row header">
+							<div class="cell">
+								Title
+							</div>
+							<div class="cell">
+								Feedback
+							</div>
+							<div class="cell">
+								Feedback From
+							</div>
+						</div>
+
+
+		<?php
+		$feeds = "SELECT * FROM feedbacks";
+		$feedresults = mysqli_query($readDB, $feeds);
+		$allfeeds=array();
+		while($onefeed = mysqli_fetch_assoc($feedresults)){
+			$allfeeds[]=$onefeed;
+		}
+		foreach($allfeeds as $onefeed){
+			?>
+			
+
+			<div class="row">
+							<div class="cell" data-title="Full Name">
+								<?php echo $onefeed['title'] ?>
+							</div>
+							<div class="cell" data-title="Job Title">
+								<?php
+								if(empty($onefeed['feedback'])){
+									$file=$onefeed['pdffile']
+									?>
+									<a href='/uploads/<?php echo $onefeed['pdffile']?>' download><?php echo $onefeed['pdffile'] ;?></a> 
+								<?php
+								}else{
+								echo substr($onefeed['feedback'],0,30);
+								echo'<br><button type="submit" name="ban" id="readmore" class="ban">Read more</button>';
+								}
+							// endif;
+							 ?>
+							</div>
+							<div class="cell" data-title="Job Title">
+								<?php echo $onefeed['feedbackfrom'] ?>
+							</div>
+							<!-- <div class="cell" data-title="">
+								<button type="submit" name="ban" id="ban" class="ban">Ban</button>
+							</div> -->
+						</div>
+		<?php
+		}
+		?>
+					</div>
+				</div>
+			</div>
+		</div>
 	</section>
 
 </section>
