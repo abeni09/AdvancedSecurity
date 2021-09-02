@@ -1,5 +1,17 @@
 <?php include('server.php');?>
 <?php
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 120)) {
+    // last request was more than 2 minutes ago
+    $sessionExpire=$_SESSION['username'];
+    $insertSessionID="UPDATE users SET sessionID = '' WHERE username='$sessionExpire'";
+    mysqli_query($db,$insertSessionID);
+    session_unset();     // unset $_SESSION variable for the run-time 
+    session_destroy();   // destroy session data in storage
+    array_push($errors,"You have been inactive for a while now. Please log in again");
+    // header('Location:adminlogin.php');
+  }
+  $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
+  
 if (isset($_GET['id'])) {
     $link=$_GET['id'];
     $id=mysqli_real_escape_string($readDB,$link);

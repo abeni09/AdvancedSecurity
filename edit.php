@@ -1,5 +1,17 @@
 <?php include('server.php');?>
 <?php
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 300)) {
+    // last request was more than 10 minutes ago
+    $sessionExpire=$_SESSION['username'];
+    $insertSessionID="UPDATE users SET sessionID = '' WHERE username='$sessionExpire'";
+    mysqli_query($db,$insertSessionID);
+    session_unset();     // unset $_SESSION variable for the run-time 
+    session_destroy();   // destroy session data in storage
+    array_push($errors,"You have been inactive for a while now. Please log in again");
+    header('Location:login.php');
+  }
+  $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
+  
 if (isset($_GET['id']) & isset($_GET['top'])) {
     $link=$_GET['id'];
     $link2=mysqli_real_escape_string($readDB,$_GET['top']);
@@ -28,7 +40,7 @@ if (isset($_GET['id']) & isset($_GET['top'])) {
                     $userSession=$userDetail['sessionID'];
                     if (empty($userSession)) {
                         // header('location:index.php');
-                        echo "no session user";
+                        echo "This is not yours to edit...Bad boy";
                     }
                     else{
                         if ($userDetail['sessionID']===md5(session_id())) {
@@ -36,8 +48,11 @@ if (isset($_GET['id']) & isset($_GET['top'])) {
                             // mysqli_query($db,$delQ);
                             // header('location:review.php?id='. $id . '&top=' .substr(md5($link2),1,7));
                             $updatedTitle=$userfetch['title'];
+                            echo $updatedTitle;
                             $updatedFeed=$userfetch['feedback'];
+                            echo $updatedFeed;
                             $updatedFile=$userfetch['pdffile'];
+                            echo $updatedFile;
                             if (isset($_POST['cancel'])) {
                                 header('Location:index.php');
                             }

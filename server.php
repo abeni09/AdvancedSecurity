@@ -1,14 +1,5 @@
 <?php include('config.php') ?>
 <?php
-
-
-    //ban user
-    if(isset($_POST['ban'])){
-
-      echo"user banned";
-      // array_push($errors,"Edit button clicked");
-
-    }
 // REGISTER USER
 if (isset($_POST['reg_user'])) {
   // echo"damn";
@@ -59,12 +50,12 @@ if (isset($_POST['reg_user'])) {
 // LOGIN USER
 if (isset($_POST['login_user'])) {
   if(isset($_SESSION['username'])){
-    array_push($errors,"You are already logged in. Logout to login using another account.");
-    header("index.php");
+    array_push($errors,"You are already logged in.");
+    // header("index.php");
   }
   else
     $username = mysqli_real_escape_string($readDB, trim($_POST['username']));
-    $password = mysqli_real_escape_string($readDB, trim($_POST['password']));
+    $password = mysqli_real_escape_string($readDB, ($_POST['password']));
   
     if (empty($username)) {
         array_push($errors, "Username is required");
@@ -82,13 +73,20 @@ if (isset($_POST['login_user'])) {
         $results = mysqli_query($readDB, $query);
         $userUpdated=mysqli_query($db,$updateUser);
         if (mysqli_num_rows($results) == 1) {
-          if($userUpdated){
-            $_SESSION['username'] = $username;
-            // $_SESSION['success'] = "You are now logged in";
-            header('location: index.php');
+          $userCred=mysqli_fetch_assoc($results);
+          $status=$userCred['banstatus'];
+          if ($status=='no') {
+            if($userUpdated){
+              $_SESSION['username'] = $username;
+              // $_SESSION['success'] = "You are now logged in";
+              header('location: index.php');
+            }
+            else{
+              array_push($errors,"Lost connection to the server.");
+            }
           }
-          else{
-            array_push($errors,"Lost connection to the server.");
+          elseif($status=='yes'){
+            array_push($errors,"Your account is temporarily banned! Contact your admin!");
           }
         }
         else {
@@ -224,19 +222,19 @@ if (isset($_POST['login_user'])) {
       // $loginRow=mysqli_fetch_assoc($laquery);
       $total_count=mysqli_num_rows($laquery);
       if(isset($_SESSION['username'])){
-        array_push($errors,"You are already logged in. Logout to login using another account.");
-        header("index.php");
+        array_push($errors,"You are already logged in.");
+        // header("index.php");
       }
       else
         // array_push($errors,$total_count);
-        $username = mysqli_real_escape_string($readDB, trim($_POST['username']));
-        $password = mysqli_real_escape_string($readDB, trim($_POST['password']));
+        $adminname = mysqli_real_escape_string($readDB, trim($_POST['username']));
+        $adminpassword = mysqli_real_escape_string($readDB, trim($_POST['password']));
         $sw = mysqli_real_escape_string($readDB, trim($_POST['sw']));
       
-        if (empty($username)) {
+        if (empty($adminname)) {
             array_push($errors, "Username is required");
         }
-        if (empty($password)) {
+        if (empty($adminpassword)) {
             array_push($errors, "Password is required");
         } 
         if (empty($sw)) {
@@ -244,43 +242,67 @@ if (isset($_POST['login_user'])) {
         }
       
         if (count($errors) == 0) {
-            $password = md5($password);
+            $adminpassword = md5($adminpassword);
             $sw = md5($sw);
-            $sessionID=session_id();
-            $sessionID =md5($sessionID);
-            $query = "SELECT * FROM dbadmin WHERE username='$username' AND password='$password' AND secretword='$sw'";
-            $results = mysqli_query($readDB, $query);
-            $updateUser="UPDATE dbadmin SET sessionID = '$sessionID' WHERE username='$username'";
-            if($total_count>=3){
-              array_push($errors,"Too many failed attempts. Please login after 30 seconds.");
+            $adminsessionID=session_id();
+            $adminsessionID =md5($adminsessionID);
+            $adminquery = "SELECT * FROM dbadmin WHERE username='$adminname' AND password='$adminpassword' AND secretword='$sw'";
+            $adminresults = mysqli_query($readDB, $adminquery);
+            $updateAdmin="UPDATE dbadmin SET sessionID = '$adminsessionID' WHERE username='$adminname'";
+            $difference=0;
+
+            // elseif($total_count>=3){
+          
+            // }
+            if (isset($_SESSION["locked"])){
+              $timequery=mysqli_query($readDB, "SELECT * FROM lastattempt WHERE ip='$ipAddr'");
+                // echo mysqli_num_rows($timequery)-1;
+                $timequeryresults = mysqli_fetch_assoc($timequery);
+                // array_push($errors,"session locked");
+                // array_push($errors,$timequeryresults['attempttime']-time());
+                $difference = time() - $timequeryresults['attempttime'];
+                // array_push($errors,$difference);
+                // array_push($errors,time());
+                if ($difference >= 30)
+                {
+                  mysqli_query($db,"DELETE from lastattempt where ip='$ipAddr'");
+                  mysqli_query($db,"DELETE from loginlogs where ipAddress='$ipAddr'");
+                  // echo"yay";
+                    unset($_SESSION["locked"]);
+                    unset($_SESSION["login_attempts"]);
+                  
+                  }
+            }
+            if($total_count==3){
+              $Counter=30-$difference;
+              $la=$_SESSION["locked"] = time();
+              mysqli_query($writeDB,"INSERT into lastattempt(ip,attempttime) values ('$ipAddr','$la')");
+              // $time=time();   
+              array_push($errors,"Too many failed attempts. Please login after " .$Counter. " seconds.");
+              if ($Counter<=0) {
+                mysqli_query($db,"DELETE from lastattempt where ip='$ipAddr'");
+              }
             }
             else{
-            if (mysqli_num_rows($results) == 1) {
+            if (mysqli_num_rows($adminresults) == 1) {
                 // $admin = mysqli_fetch_assoc($results); 
-                $userUpdated=mysqli_query($db,$updateUser);   
-                if($userUpdated){
-                  $_SESSION['username'] = $username;
+                $adminUpdated=mysqli_query($db,$updateAdmin);   
+                if($adminUpdated){
+                  $_SESSION['username'] = $adminname;
                   mysqli_query($db,"DELETE from loginlogs where ipAddress='$ipAddr'");
-                  // array_push($errors,$_SESSION['username']);
-                  // header('location: admin.php');
-                    if($userUpdated){
-                      $_SESSION['username'] = $username;
+                  mysqli_query($db,"DELETE from lastattempt where ip='$ipAddr'");
                       // $_SESSION['success'] = "You are now logged in";
-                      header('location: admin.php');
-                    }
-                    else{
-                      array_push($errors,"Lost connection to the server.");
-                    }
-                  
+                  header('location: admin.php');  
                 }
                 else{
                   array_push($errors,"Lost connection to server.");
                 }
-            }else {
+            }
+            else {
               $total_count++;
               $remAttempt=3-$total_count;
               if($remAttempt==0){
-                array_push($errors,"Too many login attempts. Please login after 30 seconds.");
+                array_push($errors,"Too many failed attempts.");
               }
               else{
                 array_push($errors, "You have $remAttempt tries left! ");

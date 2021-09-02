@@ -9,7 +9,7 @@
     </head>
     <body>
 
-        <header  class="nav-page-header">
+        <!-- <header  class="nav-page-header">
             <nav>
                 <ul class="admin-menu">
                 <li class="menu-heading">
@@ -27,7 +27,7 @@
                 </li>
                 </ul>
             </nav>
-        </header>
+        </header> -->
 
 
         <section class="page-content">
@@ -40,9 +40,10 @@
             if ('text'==$link2) {
                 echo '<form role="form" action="" method="post" id="used_form"  >';
                 include('errors.php');
+                echo $updatedTitle;
                 echo'<div class="rows">
                         <div class="col-sm-12 form-group">
-                            <label for="title"> Title</label>
+                            <label for="title">'; echo $updatedTitle;echo'</label>
                             <input required class="form-control" type="text" name="title" id="title" placeholder="Your Title" value='; echo $updatedTitle;''; echo'>
                         </div>
                     </div>
@@ -81,13 +82,13 @@
                     </div>
                     <div class="rows">
                         <div class="col-sm-12 form-group">
-                            <input disabled checked onclick="uploadtext()" type="checkbox" name="nolargefile" id="nolargefile" class="largefile" value='; echo $updatedFile;''; echo'>
+                            <input disabled checked onclick="uploadtext()" type="checkbox" name="nolargefile" id="nolargefile" class="largefile" >
                             <label for="nolargefile"> I want to upload a pdf file</label>
                         </div>
                     </div>
                     <div id="fileupload" class="rows">
                         <div class="col-sm-12 form-group">
-                            <input name="file" type="file" id="file" class="feedback-input">
+                            <input name="file" type="file" id="file" class="feedback-input" value='; echo $updatedFile;''; echo'>
                         </div>
                     </div>
                     <div class="rows">

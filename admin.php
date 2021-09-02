@@ -1,22 +1,17 @@
 <?php	include('server.php');?>
 <?php 
-
-
-	if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 600)) {
-		// last request was more than 10 minutes ago	
-		$sessionExpire=$_SESSION['username'];
-		$insertSessionID="UPDATE users SET sessionID = '' WHERE username='$sessionExpire'";
-		mysqli_query($db,$insertSessionID);			
-		$_SESSION = array();
-		if (ini_get("session.use_cookies")) {
-			$params = session_get_cookie_params();
-			setcookie(session_name(), '', time() - 42000);
-		}
-		session_unset();     // unset $_SESSION variable for the run-time 
-		session_destroy();   // destroy session data in storage
-		array_push($errors,"You have been inactive for a while now. Please log in again");
-	}
-	$_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 120)) {
+	// last request was more than 2 minutes ago
+	$sessionExpire=$_SESSION['username'];
+	$insertSessionID="UPDATE dbadmin SET sessionID = '' WHERE username='$sessionExpire'";
+	mysqli_query($db,$insertSessionID);
+	session_unset();     // unset $_SESSION variable for the run-time 
+	session_destroy();   // destroy session data in storage
+	array_push($errors,"You have been inactive for a while now. Please log in again");
+	header('Location:adminlogin.php');
+  }
+  $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
+  
 	if (!isset($_SESSION['username'])) {
 		// $_SESSION['msg'] = "You must log in first";
 		array_push($errors,"You must log in first");
@@ -57,10 +52,10 @@
 <html>
 <head>
 	<title>Home</title>
-	<link rel="stylesheet" type="text/css" href="styles/userHome.css">
-	<link rel="stylesheet" type="text/css" href="styles/form.css">
-	<link rel="stylesheet" type="text/css" href="styles/admintable.css">
-	<link rel="stylesheet" href="styles/bootstrap.css" >
+	<link rel="stylesheet" type="text/css" href="/styles/userHome.css">
+	<link rel="stylesheet" type="text/css" href="/styles/form.css">
+	<link rel="stylesheet" type="text/css" href="/styles/admintable.css">
+	<link rel="stylesheet" href="/styles/bootstrap.css" >
 	<script src="scripts/main.js"></script>
 	<script>
 		function displayUsers() { 
@@ -102,13 +97,13 @@
 <?php
 $sessionID=session_id();
 $sessionIDCrypted =md5($sessionID);
-$sessionuser=$_SESSION['username'];
-$query = "SELECT * FROM dbadmin WHERE username='$sessionuser'";
-$results = mysqli_query($readDB, $query);
-if (mysqli_num_rows($results) == 1) :
-	$user = mysqli_fetch_assoc($results);
-	if (isset($_SESSION['username'])) :
-		if(md5($user['sessionID'])===$sessionIDCrypted);
+if (isset($_SESSION['username'])) :
+	$sessionuser=$_SESSION['username'];
+	$query = "SELECT * FROM dbadmin WHERE username='$sessionuser'";
+	$results = mysqli_query($readDB, $query);
+	if (mysqli_num_rows($results) == 1) :
+		$user = mysqli_fetch_assoc($results);
+		if($user['sessionID']===$sessionIDCrypted):
  
 
 ?>
@@ -169,9 +164,20 @@ if (mysqli_num_rows($results) == 1) :
 							<div class="cell" data-title="Job Title">
 								<?php echo $oneuser['email'] ?>
 							</div>
+							<?php
+							if ($oneuser['banstatus']=='yes') {?>
+								<div class="cell" data-title="">
+									<a href="unban.php?name=<?php echo $oneuser['username'];?>" id="ban" class="ban">Unban</a>
+								</div>
+								<?php
+							}
+							elseif($oneuser['banstatus']=='no'){?>
 							<div class="cell" data-title="">
-								<button type="submit" name="ban" id="ban" class="ban">Ban</button>
+								<a href="ban.php?name=<?php echo $oneuser['username'];?>" id="ban" class="ban">Ban</a>
 							</div>
+							<?php
+							}
+							?>
 						</div>
 		<?php
 		}
@@ -251,15 +257,19 @@ if (mysqli_num_rows($results) == 1) :
 // else:
 // 	header("location: 403.php");
 
+
+else:
+	header("location: 403.php");
+
 endif;
-
-// else:
-// 	header("location: 403.php");
+else:
+	header("location: index.php");
 
 endif;
+else:
+	header("location: adminlogin.php");
 
-// else:
-// 	header("location: 403.php");
+endif;
 
 ?>
   </body>

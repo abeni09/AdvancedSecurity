@@ -2,19 +2,15 @@
 <?php 
 
 
-	if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 600)) {
+	if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 300)) {
 		// last request was more than 10 minutes ago
 		$sessionExpire=$_SESSION['username'];
 		$insertSessionID="UPDATE users SET sessionID = '' WHERE username='$sessionExpire'";
-		mysqli_query($db,$insertSessionID);			
-		$_SESSION = array();
-		if (ini_get("session.use_cookies")) {
-			$params = session_get_cookie_params();
-			setcookie(session_name(), '', time() - 42000);
-		}
+		mysqli_query($db,$insertSessionID);
 		session_unset();     // unset $_SESSION variable for the run-time 
 		session_destroy();   // destroy session data in storage
 		array_push($errors,"You have been inactive for a while now. Please log in again");
+		header('Location:login.php');
 	}
 	$_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
 
@@ -112,15 +108,18 @@
 <?php
 $sessionID=session_id();
 $sessionIDCrypted =md5($sessionID);
-$sessionuser=$_SESSION['username'];
-// $insertSessionID="UPDATE users SET sessionID = '$sessionIDCrypted' WHERE username='$sessionuser'";
-$queryq = "SELECT * FROM users WHERE username='$sessionuser'";
-$results = mysqli_query($readDB, $queryq);
-if(mysqli_num_rows($results)== 1):
+if (isset($_SESSION['username'])) :
+	$sessionuser=$_SESSION['username'];
+	// $insertSessionID="UPDATE users SET sessionID = '$sessionIDCrypted' WHERE username='$sessionuser'";
+	$queryq = "SELECT * FROM users WHERE username='$sessionuser'";
+	$results = mysqli_query($readDB, $queryq);
+	if(mysqli_num_rows($results)== 1):
 	// if (mysqli_query($db,$insertSessionID)) :
 		$user = mysqli_fetch_assoc($results);
-		if (isset($_SESSION['username'])) :
-			if(md5($user['sessionID'])===$sessionIDCrypted);
+			$userSID=$user['sessionID'];
+			if($userSID===$sessionIDCrypted):
+			array_push($errors,$sessionIDCrypted);
+			array_push($errors,$userSID);
  
 	
 ?>
@@ -262,20 +261,18 @@ if(mysqli_num_rows($results)== 1):
 </section>
 <?php 
 
-// else:
-// 	header("location: 403.php");
+else:
+	header("location: 403.php");
 
 endif;
-
-// else:
-// 	header("location: 403.php");
+else:
+	header("location: admin.php");
 
 endif;
+else:
+	header("location: login.php");
 
-// else:
-// 	header("location: 403.php");
-
-// endif;
+endif;
  ?>
   </body>
 </html>
