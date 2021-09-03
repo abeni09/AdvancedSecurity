@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Aug 25, 2021 at 07:46 PM
+-- Generation Time: Sep 03, 2021 at 07:15 AM
 -- Server version: 8.0.21
 -- PHP Version: 7.3.21
 
@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `dbadmin` (
   `password` varchar(100) NOT NULL,
   `secretword` varchar(100) NOT NULL,
   `sessionID` varchar(100) DEFAULT NULL,
+  `lastattempt` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `sessionID` (`sessionID`)
@@ -43,8 +44,8 @@ CREATE TABLE IF NOT EXISTS `dbadmin` (
 -- Dumping data for table `dbadmin`
 --
 
-INSERT INTO `dbadmin` (`id`, `username`, `password`, `secretword`, `sessionID`) VALUES
-(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', '21232f297a57a5a743894a0e4a801fc3', '');
+INSERT INTO `dbadmin` (`id`, `username`, `password`, `secretword`, `sessionID`, `lastattempt`) VALUES
+(2, 'admin', '21232f297a57a5a743894a0e4a801fc3', '21232f297a57a5a743894a0e4a801fc3', '', NULL);
 
 -- --------------------------------------------------------
 
@@ -56,12 +57,25 @@ DROP TABLE IF EXISTS `feedbacks`;
 CREATE TABLE IF NOT EXISTS `feedbacks` (
   `id` int NOT NULL AUTO_INCREMENT,
   `title` varchar(100) NOT NULL,
-  `feedback` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `feedback` varchar(6000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `feedbackfrom` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `pdffile` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `feedbackfrom` (`feedbackfrom`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lastattempt`
+--
+
+DROP TABLE IF EXISTS `lastattempt`;
+CREATE TABLE IF NOT EXISTS `lastattempt` (
+  `attempttime` bigint NOT NULL,
+  `ip` varbinary(16) NOT NULL,
+  PRIMARY KEY (`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -74,8 +88,9 @@ CREATE TABLE IF NOT EXISTS `loginlogs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `ipAddress` varbinary(16) NOT NULL,
   `trytime` bigint NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`),
+  KEY `ipAddress` (`ipAddress`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -90,11 +105,12 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(100) NOT NULL,
   `password` varchar(100) NOT NULL,
   `sessionID` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '',
+  `banstatus` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'no',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   KEY `feeduser` (`username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Constraints for dumped tables
@@ -105,6 +121,12 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 ALTER TABLE `feedbacks`
   ADD CONSTRAINT `fbowner` FOREIGN KEY (`feedbackfrom`) REFERENCES `users` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `lastattempt`
+--
+ALTER TABLE `lastattempt`
+  ADD CONSTRAINT `lastattempt_ibfk_1` FOREIGN KEY (`ip`) REFERENCES `loginlogs` (`ipAddress`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
