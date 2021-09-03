@@ -71,11 +71,11 @@ if (isset($_POST['login_user'])) {
         $query = "SELECT * FROM users WHERE username='$username' AND password='$password'";
         $updateUser="UPDATE users SET sessionID = '$sessionID' WHERE username='$username'";
         $results = mysqli_query($readDB, $query);
-        $userUpdated=mysqli_query($db,$updateUser);
         if (mysqli_num_rows($results) == 1) {
           $userCred=mysqli_fetch_assoc($results);
           $status=$userCred['banstatus'];
           if ($status=='no') {
+            $userUpdated=mysqli_query($db,$updateUser);
             if($userUpdated){
               $_SESSION['username'] = $username;
               // $_SESSION['success'] = "You are now logged in";
@@ -87,6 +87,8 @@ if (isset($_POST['login_user'])) {
           }
           elseif($status=='yes'){
             array_push($errors,"Your account is temporarily banned! Contact your admin!");
+            unset($_SESSION['username']);
+            // mysqli_query($db,"UPDATE users SET sessionID = '' WHERE username='$username'");
           }
         }
         else {
@@ -137,82 +139,109 @@ if (isset($_POST['login_user'])) {
 
    //submit feedback(text)
   if (isset($_POST['saveTEXT'])) {
-
-    $feedtitle = mysqli_real_escape_string($readDB, trim($_POST['title']));
-    if (empty($feedtitle)) {
-      array_push($errors, "Title is required");
-      }
     $feedbackfrom = $_SESSION['username'];
-    $feedcomment = mysqli_real_escape_string($readDB, trim($_POST['comments']));
-    if (empty($feedcomment)) {
-      array_push($errors, "Comment is required");
-      }
-    if (count($errors) == 0) {
-      $query = "INSERT INTO feedbacks (title, feedback, feedbackfrom) 
-            VALUES('$feedtitle', '$feedcomment', '$feedbackfrom')";
-      if(mysqli_query($writeDB, $query)){
-        array_push($errors, "Your feedback has been successfully submitted!");
+    $userDetFetch=mysqli_query($readDB,"SELECT * from users WHERE username='$feedbackfrom'");
+    if (mysqli_num_rows($userDetFetch)==1){
+      $userDet=mysqli_fetch_assoc($userDetFetch);
+      if (empty($userDet['sessionID'])) {
+        unset($_SESSION['username']);
+        // unset(session_id());
+        header('Location:login.php');
+        // array_push($errors,"what");
       }
       else{
-        array_push($errors, "Unable to submit your feedback!");}
-      }
+        $feedtitle = mysqli_real_escape_string($readDB, trim($_POST['title']));
+        if (empty($feedtitle)) {
+          array_push($errors, "Title is required");
+          }
+        if (!empty($feedbackfrom)) {
+            $feedcomment = mysqli_real_escape_string($readDB, trim($_POST['comments']));
+            if (empty($feedcomment)) {
+              array_push($errors, "Comment is required");
+              }
+            if (count($errors) == 0) {
+              $query = "INSERT INTO feedbacks (title, feedback, feedbackfrom) 
+                    VALUES('$feedtitle', '$feedcomment', '$feedbackfrom')";
+              if(mysqli_query($writeDB, $query)){
+                array_push($errors, "Your feedback has been successfully submitted!");
+              }
+              else{
+                array_push($errors, "Unable to submit your feedback!");
+              }
+            }
+          }
+          else{
+            array_push($errors,"User logged out due to inactivity");
+          }
+        }
+
+    }
+    else{
+      header('location:login.php');
+      // array_push($errors,"ohh");
+    }
+    
   }
    //submit feedback(file)
   if (isset($_POST['savePDF'])) {
-    $feedtitle = mysqli_real_escape_string($readDB, trim($_POST['title']));
-    if (empty($feedtitle)) {
-      array_push($errors, "Title is required");
-      }
-
     $feedbackfrom = $_SESSION['username'];
-    // File upload path
-    // $file=$_FILES['file'];
-    $fileName=$_FILES['file']['name'];
-    $targetDir = "uploads/";
-    $targetfolder = $targetDir . $fileName  ;
-    $file_type=$_FILES['file']['type'];
-    if(empty($fileName)){
-      array_push($errors,"Please select a file to upload.");
+    $userDetFetch=mysqli_query($readDB,"SELECT * from users WHERE username='$feedbackfrom'");
+    $userDet=mysqli_fetch_assoc($userDetFetch);
+    if (empty($userDet['sessionID'])) {
+      unset($_SESSION['username']);
+      header('Location:login.php');
     }
     else{
-      if (file_exists($targetfolder)) {
-        $copy=rand(1000,9999);
-        $fileName ="[" . $copy. "]" . $fileName ;
-        $targetfolder = $targetDir . $fileName  ;
+      $feedtitle = mysqli_real_escape_string($readDB, trim($_POST['title']));
+      if (empty($feedtitle)) {
+        array_push($errors, "Title is required");
+        }
+      // File upload path
+      // $file=$_FILES['file'];
+      $fileName=$_FILES['file']['name'];
+      $targetDir = "uploads/";
+      $targetfolder = $targetDir . $fileName  ;
+      $file_type=$_FILES['file']['type'];
+      if(empty($fileName)){
+        array_push($errors,"Please select a file to upload.");
       }
       else{
-        
-      }
-      if(move_uploaded_file($_FILES['file']['tmp_name'], $targetfolder)){  
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $real_file_type=finfo_file($finfo, $targetfolder); 
-        finfo_close($finfo);
-        if ($real_file_type=="application/pdf"){       
-          if (count($errors) == 0) { 
-            $query = "INSERT INTO feedbacks (title, pdffile, feedbackfrom) 
-                  VALUES('$feedtitle', '$fileName', '$feedbackfrom')";
-            if(mysqli_query($writeDB, $query)){
-              array_push($errors, "Your feedback has been successfully submitted!");
-            }
-            else{
-              array_push($errors, "Unable to upload your file!");
-            }
-            }
-  
-        }  
+        if (file_exists($targetfolder)) {
+          $copy=rand(1000,9999);
+          $fileName ="[" . $copy. "]" . $fileName ;
+          $targetfolder = $targetDir . $fileName  ;
+        }
         else{
-          array_push($errors, "You may only upload PDFs");
-          }
+          
+        }
+        if(move_uploaded_file($_FILES['file']['tmp_name'], $targetfolder)){  
+          $finfo = finfo_open(FILEINFO_MIME_TYPE);
+          $real_file_type=finfo_file($finfo, $targetfolder); 
+          finfo_close($finfo);
+          if ($real_file_type=="application/pdf"){       
+            if (count($errors) == 0) { 
+              $query = "INSERT INTO feedbacks (title, pdffile, feedbackfrom) 
+                    VALUES('$feedtitle', '$fileName', '$feedbackfrom')";
+              if(mysqli_query($writeDB, $query)){
+                array_push($errors, "Your feedback has been successfully submitted!");
+              }
+              else{
+                array_push($errors, "Unable to upload your file!");
+              }
+              }
+    
+          }  
+          else{
+            array_push($errors, "You may only upload PDFs");
+            }
+        }
+        else {
+          array_push($errors,"Sorry,error uploading your file. Please try again.");
+        }
       }
-      else {
-        array_push($errors,"Sorry,error uploading your file. Please try again.");
-       }
 
     }
-    
-          // $query = "INSERT INTO users (username, email, password) VALUES('$username', '$email', '$password')";
-          // mysqli_query($writeDB, $query);
-    }
+ }
 
     #admin login
     if (isset($_POST['login_admin'])) {

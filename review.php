@@ -9,7 +9,7 @@
     </head>
     <body>
 
-        <!-- <header  class="nav-page-header">
+        <header  class="nav-page-header">
             <nav>
                 <ul class="admin-menu">
                 <li class="menu-heading">
@@ -27,7 +27,7 @@
                 </li>
                 </ul>
             </nav>
-        </header> -->
+        </header>
 
 
         <section class="page-content">
@@ -40,7 +40,6 @@
             if ('text'==$link2) {
                 echo '<form role="form" action="" method="post" id="used_form"  >';
                 include('errors.php');
-                echo $updatedTitle;
                 echo'<div class="rows">
                         <div class="col-sm-12 form-group">
                             <label for="title">'; echo $updatedTitle;echo'</label>

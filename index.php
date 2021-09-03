@@ -7,6 +7,7 @@
 		$sessionExpire=$_SESSION['username'];
 		$insertSessionID="UPDATE users SET sessionID = '' WHERE username='$sessionExpire'";
 		mysqli_query($db,$insertSessionID);
+		unset($_SESSION['username']);
 		session_unset();     // unset $_SESSION variable for the run-time 
 		session_destroy();   // destroy session data in storage
 		array_push($errors,"You have been inactive for a while now. Please log in again");
@@ -52,7 +53,138 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<style>
+		
+		table {
+		font-family: arial, sans-serif;
+		border-collapse: collapse;
+		width: 100%;
+		}
+
+		td, th {
+		border: 1px solid #dddddd;
+		text-align: left;
+		padding: 8px;
+		}
+
+		tr:nth-child(even) {
+		background-color: #dddddd;
+		}
+	</style>
 	<title>Home</title>
+	<style>
+	*{
+		list-style: none;
+		text-decoration: none;
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Open Sans', sans-serif;
+	}
+
+	body{
+		background: #f5f6fa;
+	}
+
+	.wrapper .sidebar{
+		background: #114254;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 225px;
+		height: 100%;
+		padding: 20px 0;
+		transition: all 0.5s ease;
+	}
+	.wrapper .sidebar .profile{
+		margin-bottom: 30px;
+		text-align: center;
+	}
+
+	.wrapper .sidebar .profile img{
+		display: block;
+		width: 100px;
+		height: 100px;
+		border-radius: 50%;
+		margin: 0 auto;
+	}
+
+	.wrapper .sidebar .profile h3{
+		color: #ffffff;
+		margin: 10px 0 5px;
+	}
+
+	.wrapper .sidebar .profile p{
+		color: rgb(206, 240, 253);
+		font-size: 14px;
+	}
+	.wrapper .sidebar ul li a{
+		display: block;
+		padding: 13px 30px;
+		border-bottom: 1px solid #5F9EA0;
+		color: rgb(241, 237, 237);
+		font-size: 16px;
+		position: relative;
+	}
+
+	.wrapper .sidebar ul li a .icon{
+		color: #dee4ec;
+		width: 30px;
+		display: inline-block;
+	}
+
+
+	.wrapper .sidebar ul li a:hover,
+	.wrapper .sidebar ul li a.active{
+		color: #5F9EA0;
+
+		background:white;
+		border-right: 2px solid rgb(5, 68, 104);
+	}
+
+	.wrapper .sidebar ul li a:hover .icon,
+	.wrapper .sidebar ul li a.active .icon{
+		color: #5F9EA0;
+	}
+
+	.wrapper .sidebar ul li a:hover:before,
+	.wrapper .sidebar ul li a.active:before{
+		display: block;
+	}
+	.wrapper .section{
+		width: calc(100% - 225px);
+		margin-left: 225px;
+		transition: all 0.5s ease;
+	}
+
+	.wrapper .section .top_navbar{
+		background: #5F9EA0;
+		height: 50px;
+		display: flex;
+		align-items: center;
+		padding: 0 30px;
+
+	}
+
+	.wrapper .section .top_navbar .hamburger a{
+		font-size: 28px;
+		color: #f4fbff;
+	}
+
+	.wrapper .section .top_navbar .hamburger a:hover{
+		color: #a2ecff;
+	}
+	body.active .wrapper .sidebar{
+		left: -225px;
+	}
+
+	body.active .wrapper .section{
+		margin-left: 0;
+		width: 100%;
+	}
+	</style>
+	<title>Home</title>
+	<link rel="stylesheet" type="text/css" href="/styles/sidebar.css">
 	<link rel="stylesheet" type="text/css" href="/styles/userHome.css">
 	<link rel="stylesheet" type="text/css" href="/styles/form.css">
 	<link rel="stylesheet" type="text/css" href="/styles/table.css">
@@ -64,12 +196,16 @@
 			document.getElementById("form").style.display="block"; 
 			document.getElementById("listfeedbacks").style.display="block"; 
 			document.getElementById("lists").style.display="none"; 
+			document.getElementById("listfeedbacks").classList.remove("active");
+			document.getElementById("addfeedback").classList.add("active");
 		}
 		function displayList() { 
 			// document.getElementById("listfeedbacks").style.display="none"; 
 			document.getElementById("lists").style.display="block"; 
 			document.getElementById("addfeedback").style.display="block"; 
 			document.getElementById("form").style.display="none"; 
+			document.getElementById("addfeedback").classList.remove("active");
+			document.getElementById("listfeedbacks").classList.add("active");
 		}
 		function uploadfile() { 
 			if(document.getElementById("largefile").checked){
@@ -118,32 +254,44 @@ if (isset($_SESSION['username'])) :
 		$user = mysqli_fetch_assoc($results);
 			$userSID=$user['sessionID'];
 			if($userSID===$sessionIDCrypted):
-			array_push($errors,$sessionIDCrypted);
-			array_push($errors,$userSID);
  
 	
 ?>
+<header>
+    <div class="wrapper">
+        <!--Top menu -->
+        <div class="sidebar">
+           <!--profile image & text-->
+		   <div class="profile">
+                <!-- <img src="" alt="profile_picture"> -->
+                <h3>Welcome</h3>
+                <p><strong><?php echo $_SESSION['username']; ?></p>
+            </div>
+			<ul>
+                <li>
+                    <a onclick="displayForm()" class="active" id="addfeedback">
+                        <span class="icon"><i class="fas fa-home"></i></span>
+                        <span class="item">Add Feedback</span>
+                    </a>
+                </li>
+                <li>
+                    <a onclick="displayList()" id="listfeedbacks">
+                        <span class="icon"><i class="fas fa-desktop"></i></span>
+                        <span class="item">Feedbacks</span>
+                    </a>
+				</li>
+                <li>
+                    <a href="index.php?logout='1'" style="color: red;">
+                        <span class="icon"><i class="fas fa-cog"></i></span>
+                        <span class="item">Logout</span>
+                    </a>
+                </li>
+            </ul>
+    
+        </div>
 
-<header  class="nav-page-header">
-  <nav>
-    <ul class="admin-menu">
-      <li class="menu-heading">
-		
-        <h3>Welcome <strong><?php echo $_SESSION['username']; ?></strong></h3>
-      </li>
-	  <li>
-		  <a onclick="displayForm()" class="addfeedback" id="addfeedback" name="newFeedback"><h3>ADD NEW FEEDBACK</h3></a>
-	  </li>
-	  <li>
-		  <a onclick="displayList()" class="listfeedbacks" id="listfeedbacks" name="listFeedback"><h3>LIST FEEDBACKS</h3></a>
-	  </li>
-	  <li>
-	  	<a href="index.php?logout='1'" style="color: red;"><h3>Logout</h3></a>
-	  </li>
-    </ul>
-  </nav>
+    </div>
 </header>
-
 
 <section class="page-content">
 		<div id="form" class="container">
@@ -240,8 +388,15 @@ if (isset($_SESSION['username'])) :
 								}
 								else{
 									$pdfortext='text';
-									echo (substr($onefeed['feedback'],0,100).'...<button type="submit" class="ban" name="readmore">Read More</button>');
-							}
+									$len=strlen($onefeed['feedback']);
+									if ($len>100) {
+										echo ('<p>'.substr($onefeed['feedback'],0,100).'...'.'<a href="readmore.php?id='.$onefeed['id'].'" id="readmore" class="ban" name="readmore">Read More</a></p>');
+									}
+									else{
+										echo ('<p>'.$onefeed['feedback'].'</p>');
+									}
+									
+								}
 							 ?>
 				</td>
 			<td>
@@ -262,7 +417,9 @@ if (isset($_SESSION['username'])) :
 <?php 
 
 else:
-	header("location: 403.php");
+	unset($_SESSION['username']);
+	$sessionuser="";
+	header("location: login.php");
 
 endif;
 else:

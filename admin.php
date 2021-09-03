@@ -51,20 +51,151 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 
 <!DOCTYPE html>
 <html>
 <head>
+	<style>
+		table {
+		font-family: arial, sans-serif;
+		border-collapse: collapse;
+		width: 100%;
+		}
+
+		td, th {
+		border: 1px solid #dddddd;
+		text-align: left;
+		padding: 8px;
+		}
+
+		tr:nth-child(even) {
+		background-color: #dddddd;
+		}
+	</style>
 	<title>Home</title>
-	<link rel="stylesheet" type="text/css" href="/styles/userHome.css">
-	<link rel="stylesheet" type="text/css" href="/styles/form.css">
-	<link rel="stylesheet" type="text/css" href="/styles/admintable.css">
-	<link rel="stylesheet" href="/styles/bootstrap.css" >
+	<style>
+	*{
+		list-style: none;
+		text-decoration: none;
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Open Sans', sans-serif;
+	}
+
+	body{
+		background: #f5f6fa;
+	}
+
+	.wrapper .sidebar{
+		background: #114254;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 225px;
+		height: 100%;
+		padding: 20px 0;
+		transition: all 0.5s ease;
+	}
+	.wrapper .sidebar .profile{
+		margin-bottom: 30px;
+		text-align: center;
+	}
+
+	.wrapper .sidebar .profile img{
+		display: block;
+		width: 100px;
+		height: 100px;
+		border-radius: 50%;
+		margin: 0 auto;
+	}
+
+	.wrapper .sidebar .profile h3{
+		color: #ffffff;
+		margin: 10px 0 5px;
+	}
+
+	.wrapper .sidebar .profile p{
+		color: rgb(206, 240, 253);
+		font-size: 14px;
+	}
+	.wrapper .sidebar ul li a{
+		display: block;
+		padding: 13px 30px;
+		border-bottom: 1px solid #5F9EA0;
+		color: rgb(241, 237, 237);
+		font-size: 16px;
+		position: relative;
+	}
+
+	.wrapper .sidebar ul li a .icon{
+		color: #dee4ec;
+		width: 30px;
+		display: inline-block;
+	}
+
+
+	.wrapper .sidebar ul li a:hover,
+	.wrapper .sidebar ul li a.active{
+		color: #5F9EA0;
+
+		background:white;
+		border-right: 2px solid rgb(5, 68, 104);
+	}
+
+	.wrapper .sidebar ul li a:hover .icon,
+	.wrapper .sidebar ul li a.active .icon{
+		color: #5F9EA0;
+	}
+
+	.wrapper .sidebar ul li a:hover:before,
+	.wrapper .sidebar ul li a.active:before{
+		display: block;
+	}
+	.wrapper .section{
+		width: calc(100% - 225px);
+		margin-left: 225px;
+		transition: all 0.5s ease;
+	}
+
+	.wrapper .section .top_navbar{
+		background: #5F9EA0;
+		height: 50px;
+		display: flex;
+		align-items: center;
+		padding: 0 30px;
+
+	}
+
+	.wrapper .section .top_navbar .hamburger a{
+		font-size: 28px;
+		color: #f4fbff;
+	}
+
+	.wrapper .section .top_navbar .hamburger a:hover{
+		color: #a2ecff;
+	}
+	body.active .wrapper .sidebar{
+		left: -225px;
+	}
+
+	body.active .wrapper .section{
+		margin-left: 0;
+		width: 100%;
+	}
+</style>
+	 <link rel="stylesheet" type="text/css" href="/styles/userHome.css">
+	<link rel="stylesheet" type="text/css" href="/styles/table.css">
+	<link rel="stylesheet" href="/styles/bootstrap.css">
 	<script src="scripts/main.js"></script>
 	<script>
 		function displayUsers() { 
 			document.getElementById("listallusers").style.display="block"; 
-			document.getElementById("listallfeedbacks").style.display="none"; 
+			document.getElementById("listallfeedbacks").style.display="none";
+			document.getElementById("listfeedbacks").classList.remove("active");
+			document.getElementById("listusers").classList.add("active");
 		}
 		function displayFeeds() { 
 			document.getElementById("listallusers").style.display="none"; 
 			document.getElementById("listallfeedbacks").style.display="block"; 
+			document.getElementById("listusers").classList.remove("active");
+			document.getElementById("listfeedbacks").classList.add("active");
 		}
 		function uploadfile() { 
 			if(document.getElementById("largefile").checked){
@@ -107,43 +238,48 @@ if (isset($_SESSION['username'])) :
  
 
 ?>
+<header>
+    <div class="wrapper">
+        <!--Top menu -->
+        <div class="sidebar">
+           <!--profile image & text-->
+		   <div class="profile">
+                <!-- <img src="" alt="profile_picture"> -->
+                <h3>Welcome</h3>
+                <p><strong><?php echo $_SESSION['username']; ?></p>
+            </div>
+			<ul>
+                <li>
+                    <a onclick="displayUsers()" class="active" id="listusers">
+                        <span class="icon"><i class="fas fa-home"></i></span>
+                        <span class="item">List Users</span>
+                    </a>
+                </li>
+                <li>
+                    <a onclick="displayFeeds()" id="listfeedbacks">
+                        <span class="icon"><i class="fas fa-desktop"></i></span>
+                        <span class="item">List Feedbacks</span>
+                    </a>
+				</li>
+                <li>
+                    <a href="admin.php?logout='1'" style="color: red;">
+                        <span class="icon"><i class="fas fa-cog"></i></span>
+                        <span class="item">Logout</span>
+                    </a>
+                </li>
+            </ul>
+    
+        </div>
 
-<header  class="nav-page-header">
-  <nav>
-    <ul class="admin-menu">
-      <li class="menu-heading">
-		
-        <h3>Welcome <strong><?php echo $_SESSION['username']; ?></strong></h3>
-      </li>
-	  <li>
-		  <a onclick="displayUsers()" class="listusers" id="listusers" name="listusers"><h3>LIST USERS</h3></a>
-	  </li>
-	  <li>
-		  <a onclick="displayFeeds()" class="listfeedbacks" id="listfeedbacks" name="listFeedback"><h3>LIST FEEDBACKS</h3></a>
-	  </li>
-	  <li>
-	  	<a href="admin.php?logout='1'" style="color: red;"><h3>Logout</h3></a>
-	  </li>
-    </ul>
-  </nav>
+    </div>
 </header>
-
-
 <section class="page-content">
 	<section id="listallusers">
-	<div class="limiter">
-		<div class="container-table100">
-			<div class="wrap-table100">
-					<div class="table">
-
-						<div class="row header">
-							<div class="cell">
-								Username
-							</div>
-							<div class="cell">
-								Email
-							</div>
-						</div>
+	<table id="customers">
+		<tr>
+			<th>Title</th>
+			<th>Feedback</th>
+		</tr>
 
 
 		<?php
@@ -157,53 +293,57 @@ if (isset($_SESSION['username'])) :
 			?>
 			
 
-			<div class="row">
-							<div class="cell" data-title="Full Name">
+			<tr>
+							<td data-title="Full Name">
 								<?php echo $oneuser['username'] ?>
-							</div>
-							<div class="cell" data-title="Job Title">
+							</td>
+							<td data-title="Job Title">
 								<?php echo $oneuser['email'] ?>
-							</div>
+							</td>
 							<?php
 							if ($oneuser['banstatus']=='yes') {?>
-								<div class="cell" data-title="">
+								<td data-title="">
 									<a href="unban.php?name=<?php echo $oneuser['username'];?>" id="ban" class="ban">Unban</a>
-								</div>
+								</td>
 								<?php
 							}
-							elseif($oneuser['banstatus']=='no'){?>
-							<div class="cell" data-title="">
-								<a href="ban.php?name=<?php echo $oneuser['username'];?>" id="ban" class="ban">Ban</a>
-							</div>
-							<?php
+							elseif($oneuser['banstatus']=='no'){
+								if (!empty($oneuser['sessionID'])) {?>
+									
+									<td data-title="">
+										<a href="ban.php?name=<?php echo $oneuser['username'];?>" id="ban" class="ban">Ban(Active)</a>
+									</td>
+								<?php
+								}
+								elseif(empty($oneuser['sessionID'])){?>
+									
+									<td data-title="">
+										<a href="ban.php?name=<?php echo $oneuser['username'];?>" id="ban" class="ban">Ban</a>
+									</td>
+								<?php
+								}
 							}
 							?>
-						</div>
+						</tr>
 		<?php
 		}
 		?>
-					</div>
-				</div>
-			</div>
-		</div>
+	</table>
 	</section>
 	<section id="listallfeedbacks" style="display: none;" >
-	<div class="limiter" >
-		<div class="container-table100">
-			<div class="wrap-table100">
-					<div class="table">
+					<table id="customers">
 
-						<div class="row header">
-							<div class="cell">
+						<tr>
+							<th >
 								Title
-							</div>
-							<div class="cell">
+							</th>
+							<th>
 								Feedback
-							</div>
-							<div class="cell">
+							</th>
+							<th>
 								Feedback From
-							</div>
-						</div>
+							</th>
+						</tr>
 
 
 		<?php
@@ -217,11 +357,11 @@ if (isset($_SESSION['username'])) :
 			?>
 			
 
-			<div class="row">
-							<div class="cell" data-title="Full Name">
+			<tr>
+							<td data-title="Full Name">
 								<?php echo $onefeed['title'] ?>
-							</div>
-							<div class="cell" data-title="Job Title">
+							</td>
+							<td data-title="Job Title">
 								<?php
 								if(empty($onefeed['feedback'])){
 									$file=$onefeed['pdffile']
@@ -229,26 +369,26 @@ if (isset($_SESSION['username'])) :
 									<a href='/uploads/<?php echo $onefeed['pdffile']?>' download><?php echo $onefeed['pdffile'] ;?></a> 
 								<?php
 								}else{
-								echo substr($onefeed['feedback'],0,30);
-								echo'<br><button type="submit" name="ban" id="readmore" class="ban">Read more</button>';
-								}
+									// $pdfortext='text';
+									$len=strlen($onefeed['feedback']);
+									if ($len>100) {
+										echo ('<p>'.substr($onefeed['feedback'],0,100).'...'.'<a href="readmore.php?id='.$onefeed['id'].'" id="readmore" class="ban" name="readmore">Read More</a></p>');
+									}
+									else{
+										echo ('<p>'.$onefeed['feedback'].'</p>');
+									}
+									}
 							// endif;
 							 ?>
-							</div>
-							<div class="cell" data-title="Job Title">
+							</td>
+							<td data-title="Job Title">
 								<?php echo $onefeed['feedbackfrom'] ?>
-							</div>
-							<!-- <div class="cell" data-title="">
-								<button type="submit" name="ban" id="ban" class="ban">Ban</button>
-							</div> -->
-						</div>
+							</td>
+						</tr>
 		<?php
 		}
 		?>
-					</div>
-				</div>
-			</div>
-		</div>
+					</table>
 	</section>
 
 </section>

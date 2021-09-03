@@ -28,18 +28,21 @@ if (isset($_GET['name'])) {
                     if(mysqli_num_rows($selFUQ)!=1){
                         echo "No user with such name";
                         echo $sessionExpire;
-                        // header('location:admin.php');
+                        header('location:admin.php');
                     }
                     elseif(mysqli_num_rows($selFUQ)==1){
                         if ($userfetch['banstatus']=='no') {
                             echo "user is not banned";
+                            header('location:admin.php');
                         }
                         else{
                             if (mysqli_query($db,"UPDATE users SET banstatus = 'no' WHERE username='$id'")) {
                                 echo "user unbanned";
+                                header('location:admin.php');
                             }
                             else{
                                 echo "unable to unban user";
+                                header('location:admin.php');
                             }
                         
                         }
@@ -47,17 +50,19 @@ if (isset($_GET['name'])) {
                     }
                     else{
                         echo "admin not logged in yet";
+                        header('location:admin.php');
                     }
     }
     else{
         echo "You are not the admin";
+        header('location:admin.php');
     }
 }
     
 
 
     else{
-        // header('location:login.php');
+        header('location:login.php');
         echo "no session";
     }
 }

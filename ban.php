@@ -28,30 +28,51 @@ if (isset($_GET['name'])) {
                     if(mysqli_num_rows($selFUQ)!=1){
                         echo "No user with such name";
                         echo $sessionExpire;
-                        // header('location:admin.php');
+                        header('location:admin.php');
                     }
                     elseif(mysqli_num_rows($selFUQ)==1){
                         
                         if ($userfetch['banstatus']==='yes') {
                             echo "user is already banned";
+                            header('location:admin.php');
                         }
                         elseif($userfetch['banstatus']==='no'){
-                            if (mysqli_query($db,"UPDATE users SET banstatus = 'yes' WHERE username='$id'")) {
-                                echo "user banned";
+                            if (empty($userfetch['sessionID'])) {
+                                if (mysqli_query($db,"UPDATE users SET banstatus = 'yes' WHERE username='$id'")) {
+                                    echo "user banned";
+                                    header('location:admin.php');
+                                }
                             }
-                            else{
-                                echo "unable to ban user";
-                                echo $userfetch['banstatus'];
+                            elseif(!empty($userfetch['sessionID'])){
+                                $redirect=header('location:admin.php');
+                                echo '
+                                    <script>
+                                        let isConfirmed= confirm("The user is logged in. Are you sure you want to ban user anyway?");
+                                        if(isConfirmed){';
+                                                
+                                        $ban=mysqli_query($db,"UPDATE users SET banstatus = 'yes' WHERE username='$id'");
+                                        $clearSession=mysqli_query($db,"UPDATE users SET sessionID = '' WHERE username='$id'");
+                                            
+                                        echo'
+                                        }
+                                        else{
+                                            
+                                            
+                                        }
+                                    </script>
+                                ';
                             }
                         
                         }
                         }
                     }
                     else{
+                        header('location:admin.php');
                         echo "admin not logged in yet";
                     }
     }
     else{
+        header('location:admin.php');
         echo "You are not the admin";
     }
 }
@@ -59,11 +80,13 @@ if (isset($_GET['name'])) {
 
 
     else{
-        // header('location:login.php');
+        header('location:login.php');
         echo "no session";
     }
 }
 else{
+    
+    header('location:admin.php');
     echo "no user selected to ban";
 
 }

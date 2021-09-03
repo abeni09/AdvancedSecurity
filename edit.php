@@ -5,6 +5,7 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 
     $sessionExpire=$_SESSION['username'];
     $insertSessionID="UPDATE users SET sessionID = '' WHERE username='$sessionExpire'";
     mysqli_query($db,$insertSessionID);
+    unset($_SESSION['username']);
     session_unset();     // unset $_SESSION variable for the run-time 
     session_destroy();   // destroy session data in storage
     array_push($errors,"You have been inactive for a while now. Please log in again");
@@ -50,7 +51,6 @@ if (isset($_GET['id']) & isset($_GET['top'])) {
                             $updatedTitle=$userfetch['title'];
                             echo $updatedTitle;
                             $updatedFeed=$userfetch['feedback'];
-                            echo $updatedFeed;
                             $updatedFile=$userfetch['pdffile'];
                             echo $updatedFile;
                             if (isset($_POST['cancel'])) {
