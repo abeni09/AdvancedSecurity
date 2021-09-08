@@ -4,11 +4,13 @@
 if (isset($_POST['reg_user'])) {
   // echo"damn";
   // receive all input values from the form
+  $capKEY = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['captcha_challenge'])));
   $username = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['username'])));
   $email = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['email'])));
   $password_1 = mysqli_real_escape_string($readDB, ($_POST['password_1']));
   $password_2 = mysqli_real_escape_string($readDB, ($_POST['password_2'])); 
   if (empty($username)) { array_push($errors, "Username is required"); }
+  if (empty($capKEY)) { array_push($errors, "Captcha is eempty"); }
   if ($username == "admin" or $username == "ADMIN" or $username == "AdMiN" or $username == "aDmIn") { array_push($errors, "Username already taken."); }
   if (empty($email)) { array_push($errors, "Email is required"); }
   if (empty($password_1)) { array_push($errors, "Password is required"); }
@@ -55,6 +57,8 @@ if (isset($_POST['login_user'])) {
     // header("index.php");
   }
   else
+  if(isset($_POST['captcha_challenge']) && $_POST['captcha_challenge'] == $_SESSION['captcha_text']) {
+  
     $username = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['username'])));
     $password = mysqli_real_escape_string($readDB, ($_POST['password']));
   
@@ -64,7 +68,8 @@ if (isset($_POST['login_user'])) {
     if (empty($password)) {
         array_push($errors, "Password is required");
     }
-  
+
+    // isset($_POST['captcha_challenge']) && $_POST['captcha_challenge'] == $_SESSION['captcha_text']
     if (count($errors) == 0) {
         $password = md5($password);
         $sessionID=session_id();
@@ -97,6 +102,11 @@ if (isset($_POST['login_user'])) {
         }
     }
   }
+  
+  else {
+    array_push($errors, "Incorrect captcha");
+  }
+}
   //reset password
   // if (isset($_POST['reset_pwd']) && ($_POST['email']!="")) {
   //   # code...
@@ -141,13 +151,14 @@ if (isset($_POST['login_user'])) {
    //submit feedback(text)
   if (isset($_POST['saveTEXT'])) {
     $texttoken = filter_input(INPUT_POST, 'token', FILTER_SANITIZE_STRING);
+    $captchaKey = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['captcha_challenge'])));
     if (!$texttoken || $texttoken !== $_SESSION['token']) {
         // return 405 http status code
-        // header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
-        // exit;
-        // echo 'vbnm,';
+        header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+        exit;
     } 
     else {
+    if(isset($_POST['captcha_challenge']) && $_POST['captcha_challenge'] == $_SESSION['captcha_text']) {
     $feedbackfrom = $_SESSION['username'];
     $userDetFetch=mysqli_query($readDB,"SELECT * from users WHERE username='$feedbackfrom'");
     if (mysqli_num_rows($userDetFetch)==1){
@@ -191,10 +202,16 @@ if (isset($_POST['login_user'])) {
       // array_push($errors,"ohh");
     }
   }
+  else {
+    array_push($errors, "Incorrect captcha");
+  }
+
+}
     
   }
    //submit feedback(file)
   if (isset($_POST['savePDF'])) {
+    $captchaKey = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['captcha_challenge'])));
     $token = filter_input(INPUT_POST, 'token', FILTER_SANITIZE_STRING);
     if (!$token || $token !== $_SESSION['token']) {
         // return 405 http status code
@@ -202,6 +219,7 @@ if (isset($_POST['login_user'])) {
         exit;
     } 
     else {
+    if(isset($_POST['captcha_challenge']) && $_POST['captcha_challenge'] == $_SESSION['captcha_text']) {
     $feedbackfrom = $_SESSION['username'];
     $userDetFetch=mysqli_query($readDB,"SELECT * from users WHERE username='$feedbackfrom'");
     $userDet=mysqli_fetch_assoc($userDetFetch);
@@ -261,6 +279,10 @@ if (isset($_POST['login_user'])) {
 
     }
   }
+  else {
+    array_push($errors, "Incorrect captcha");
+  }
+}
  }
 
     #admin login

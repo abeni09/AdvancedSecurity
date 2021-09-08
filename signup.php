@@ -1,5 +1,6 @@
 
 <?php include('server.php') ?>
+<?php include('captcha.php') ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -99,6 +100,10 @@
   	<div class="input-group">
   	  <label>Confirm password</label>
   	  <input minlength="8" required type="password" name="password_2">
+  	</div>
+  	<div class="input-group">
+      <img src="captcha.png" alt="CAPTCHA" class="captchaimage">
+  	  <input required type="text" id="captcha" name="captcha_challenge" pattern="[A-Z]{6}">
   	</div>
   	<div class="input-group">
   	  <button type="submit" class="btn" name="reg_user">Sign up</button>

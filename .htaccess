@@ -16,4 +16,4 @@ RewriteCond %{HTTP_REFERER} !^http://helpmycity/index.php [NC]
 
 # [F] = forbidden, 403
 # [L] = stop processing further rules
-RewriteRule \.(pdf|css|js|exe|jar|gif|jpg|jpeg|png|mp4|mov|mkv|flv)$ - [F,L]
+RewriteRule \.(pdf|css|js|exe|jar|gif|jpg|jpeg|mp4|mov|mkv|flv)$ - [F,L]

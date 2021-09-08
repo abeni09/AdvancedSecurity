@@ -1,6 +1,6 @@
 <?php
-	include('server.php');
-	
+	include('server.php');	
+	include('captcha.php');
 ?>
 <?php 
 
@@ -55,7 +55,6 @@
 		// }
 	}
 ?>
-<!DOCTYPE html>
 <html>
 <head>
 	<style>
@@ -321,12 +320,19 @@ if (isset($_SESSION['username'])) :
                                 <textarea style="resize: none;" required class="form-control" type="textarea" name="comments" id="comments" placeholder="Your Comments" maxlength="6000" rows="7"></textarea>
                             </div>
                         </div>
-						<input type="hidden" name="token" value="<?php echo $_SESSION['token'] ?? '' ?>">
+						<input type="hidden" name="token" value="<?php echo $_SESSION['token']?>">
 						<div class="rows">
                             <div class="col-sm-12 form-group">
                                 <input onclick="uploadfile()" type="checkbox" name="largefile" id="largefile" class="largefile" value="file"/>
 								<label for="largefile"> I want to upload a pdf file</label>
                             </div>
+                        </div>
+						<div class="rows">
+                            <div class="col-sm-12 form-group">
+                                <!-- <label for="captcha">Solve the captcha</label><br> -->
+                                <img src="captcha.png" alt="CAPTCHA" class="captchaimage">
+								<input required class="form-control" type="text" id="captcha" name="captcha_challenge" pattern="[A-Z]{6}">
+							</div>
                         </div>
                         <div class="s">
                             <div class="col-sm-12 form-group">
@@ -356,15 +362,19 @@ if (isset($_SESSION['username'])) :
                             	<input name="file" type="file" id="file" class="feedback-input">
 							</div>
                         </div>
+						<div class="rows">
+                            <div class="col-sm-12 form-group">
+                                <!-- <label for="captcha"></label><br> -->
+                                <img src="captcha.png" alt="CAPTCHA" class="captchaimage">
+								<input required class="form-control" type="text" id="captcha" name="captcha_challenge" pattern="[A-Z]{6}">
+							</div>
+                        </div>
                         <div class="rows">
                             <div class="col-sm-12 form-group">
                                 <button type="submit" class="btn btn-lg btn-block postbtn" name="savePDF">Post </button>
                             </div>
                         </div>
                     </form>
-                    
-                    <div id="success_message" style="width:100%; height:100%; display:none; "> <h3>Posted your feedback successfully!</h3> </div>
-                    <div id="error_message" style="width:100%; height:100%; display:none; "> <h3>Error</h3> Sorry there was an error sending your form. </div>
                 </div>
             </div>
         </div>
