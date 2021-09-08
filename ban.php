@@ -1,4 +1,4 @@
-<?php include('server.php');?>
+<?php include('config.php');?>
 <?php
     $sessionExpire=$_SESSION['username'];
     $sessID=session_id();
@@ -14,9 +14,20 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 
   }
   $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
   
-if (isset($_GET['name'])) {
+if (isset($_GET['name']) & isset($_GET['token'])) {
+
     $link=$_GET['name'];
+    $tok=$_GET['token'];
     $id=mysqli_real_escape_string($readDB,$link);
+    $token=mysqli_real_escape_string($readDB,$tok);
+    
+    if (!$token || $token !== $_SESSION['admintoken']) {
+        // return 405 http status code
+        header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+        exit;
+    } 
+    else {
+    
     if (isset($_SESSION['username'])) {
             $selAQ=mysqli_query($readDB,"SELECT * from dbadmin Where username= '$sessionExpire'");
             if(mysqli_num_rows($selAQ)==1){
@@ -40,6 +51,7 @@ if (isset($_GET['name'])) {
                             if (empty($userfetch['sessionID'])) {
                                 if (mysqli_query($db,"UPDATE users SET banstatus = 'yes' WHERE username='$id'")) {
                                     echo "user banned";
+                                    unset($_SESSION['token']);
                                     header('location:admin.php');
                                 }
                             }
@@ -52,7 +64,7 @@ if (isset($_GET['name'])) {
                                                 
                                         $ban=mysqli_query($db,"UPDATE users SET banstatus = 'yes' WHERE username='$id'");
                                         $clearSession=mysqli_query($db,"UPDATE users SET sessionID = '' WHERE username='$id'");
-                                            
+                                        unset($_SESSION['token']);
                                         echo'
                                         }
                                         else{
@@ -80,13 +92,14 @@ if (isset($_GET['name'])) {
 
 
     else{
-        header('location:login.php');
+        // header('location:login.php');
         echo "no session";
     }
 }
+}
 else{
     
-    header('location:admin.php');
+    // header('location:admin.php');
     echo "no user selected to ban";
 
 }

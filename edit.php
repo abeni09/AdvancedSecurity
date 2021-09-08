@@ -13,12 +13,20 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 
   }
   $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
   
-if (isset($_GET['id']) & isset($_GET['top'])) {
+if (isset($_GET['id']) & isset($_GET['top']) & isset($_GET['token'])) {
     $link=$_GET['id'];
     $link2=mysqli_real_escape_string($readDB,$_GET['top']);
-    // echo $link2;
+    $tok=$_GET['token'];
     $id=mysqli_real_escape_string($readDB,$link);
-
+    $token=mysqli_real_escape_string($readDB,$tok);
+    if (isset($_SESSION['token'])) {
+            
+    if (!$token || $token !== $_SESSION['token']) {
+        // return 405 http status code
+        header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+        exit;
+    } 
+    else {
     if (isset($_SESSION['username'])) {
         $selFUQ=mysqli_query($readDB,"SELECT * from feedbacks Where id= $id");
         if(mysqli_num_rows($selFUQ)!=1){
@@ -49,20 +57,29 @@ if (isset($_GET['id']) & isset($_GET['top'])) {
                             // mysqli_query($db,$delQ);
                             // header('location:review.php?id='. $id . '&top=' .substr(md5($link2),1,7));
                             $updatedTitle=$userfetch['title'];
-                            echo $updatedTitle;
+                            // echo $updatedTitle;
                             $updatedFeed=$userfetch['feedback'];
                             $updatedFile=$userfetch['pdffile'];
-                            echo $updatedFile;
+                            // echo $updatedFile;
                             if (isset($_POST['cancel'])) {
                                 header('Location:index.php');
+                                unset($_SESSION['token']);
                             }
                             if(isset($_POST['editFEED'])){
-                                $feedtitle = mysqli_real_escape_string($readDB, trim($_POST['title']));
+                                
+                                $feedtitle = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['title'])));
+                                $feedbackfrom = $_SESSION['username'];
+                                $feedcomment = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['comments'])));
+                                $edittoken=mysqli_real_escape_string($readDB, trim($_POST['token']));
+                                if (!$edittoken || $edittoken !== $_SESSION['edittoken']) {
+                                    // return 405 http status code
+                                    header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+                                    exit;
+                                }
+                                else{
                                 if (empty($feedtitle)) {
                                   array_push($errors, "Title is required");
                                   }
-                                $feedbackfrom = $_SESSION['username'];
-                                $feedcomment = mysqli_real_escape_string($readDB, trim($_POST['comments']));
                                 if (empty($feedcomment)) {
                                   array_push($errors, "Comment is required");
                                   }
@@ -70,12 +87,14 @@ if (isset($_GET['id']) & isset($_GET['top'])) {
                                   $query ="UPDATE feedbacks set title='$feedtitle', feedback='$feedcomment' where id='$id'";
                                   if(mysqli_query($db, $query)){
                                     array_push($errors, "Your feedback has been successfully edited!");
-                                    echo "success";
+                                    header('Location:index.php');
+                                    unset($_SESSION['token']);
                                   }
                                   else{
                                     array_push($errors, "Unable to submit your feedback!");}
                                   }
                             }
+                        }
 
                             // array_push($errors,"Feedback successfully edited!");
                         }
@@ -85,7 +104,14 @@ if (isset($_GET['id']) & isset($_GET['top'])) {
                             
                         }
                         if (isset($_POST['editFILE'])) {
-                            $feedtitle = mysqli_real_escape_string($readDB, trim($_POST['title']));
+                            $feedtitle = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['title'])));
+                            $edittoken=mysqli_real_escape_string($readDB, trim($_POST['token']));
+                            if (!$edittoken || $edittoken !== $_SESSION['edittoken']) {
+                                // return 405 http status code
+                                header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+                                exit;
+                            }
+                            else{
                             if (empty($feedtitle)) {
                               array_push($errors, "Title is required");
                               }
@@ -116,7 +142,9 @@ if (isset($_GET['id']) & isset($_GET['top'])) {
                                       echo $id;
                                     $queryF = "UPDATE feedbacks set title='$feedtitle', pdffile='$fileName' WHERE id='$id'";
                                     if(mysqli_query($db, $queryF)){
-                                      array_push($errors, "Your feedback has been successfully submitted!");
+                                      array_push($errors, "Your feedback has been successfully edited!");
+                                      header('Location:index.php');                                      
+                                      unset($_SESSION['token']);
                                     }
                                     else{
                                       array_push($errors, "Unable to upload your file!");
@@ -134,6 +162,7 @@ if (isset($_GET['id']) & isset($_GET['top'])) {
                         
                             }
                             }
+                        }
                     }
                 }
                 else{
@@ -156,6 +185,15 @@ if (isset($_GET['id']) & isset($_GET['top'])) {
         header('location:login.php');
         echo "no session";
     }
+}
+}
+else {
+    
+    header('location:index.php');
+    echo "no token";
+
+}
+
 }else{
     header('location:index.php');
     echo "no file selected to be edited";

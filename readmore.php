@@ -34,9 +34,19 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 
   }
   $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
   
-if (isset($_GET['id'])) {
+  if (isset($_GET['id']) & isset($_GET['token'])) {
+
     $link=$_GET['id'];
+    $tok=$_GET['token'];
     $id=mysqli_real_escape_string($readDB,$link);
+    $token=mysqli_real_escape_string($readDB,$tok);
+    
+    if (!$token || $token !== $_SESSION['adminfeedtoken']) {
+        // return 405 http status code
+        header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+        exit;
+    } 
+    else {
     if (isset($_SESSION['username'])) {
         $selFUQ=mysqli_query($readDB,"SELECT * from feedbacks Where id= $id");
         if(mysqli_num_rows($selFUQ)!=1){
@@ -63,6 +73,7 @@ if (isset($_GET['id'])) {
                     }
                     else{
                         if ($userDetail['sessionID']===md5(session_id())) {
+                            unset($_SESSION['adminfeedtoken']);
                             echo '                         
                             <article class="all-browsers">
                               <article class="browser">
@@ -72,6 +83,7 @@ if (isset($_GET['id'])) {
                               
                             </article>
                             ';
+                            $_SESSION['adminfeedtoken'] = bin2hex(random_bytes(35));
                         }
                         else{
                             // header('location:index.php');
@@ -117,6 +129,7 @@ if (isset($_GET['id'])) {
         echo "no session";
     }
 }
+  }
 else{
     echo "no file selected to delete";
 

@@ -1,4 +1,6 @@
-<?php	include('server.php');?>
+<?php
+	include('server.php');
+?>
 <?php 
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 120)) {
 	// last request was more than 2 minutes ago
@@ -283,6 +285,7 @@ if (isset($_SESSION['username'])) :
 
 
 		<?php
+		$_SESSION['admintoken'] = bin2hex(random_bytes(35));
 		$users = "SELECT * FROM users";
 		$userresults = mysqli_query($readDB, $users);
 		$allusers=array();
@@ -301,24 +304,29 @@ if (isset($_SESSION['username'])) :
 								<?php echo $oneuser['email'] ?>
 							</td>
 							<?php
-							if ($oneuser['banstatus']=='yes') {?>
+							if ($oneuser['banstatus']=='yes') {
+								 ?>
+								
 								<td data-title="">
-									<a href="unban.php?name=<?php echo $oneuser['username'];?>" id="ban" class="ban">Unban</a>
+									<!-- <input type="hidden" name="token" value=""> -->
+									<a href="unban.php?name=<?php echo $oneuser['username']."&token=".$_SESSION['admintoken'];?>" id="ban" class="ban">Unban</a>
 								</td>
 								<?php
 							}
 							elseif($oneuser['banstatus']=='no'){
-								if (!empty($oneuser['sessionID'])) {?>
+								if (!empty($oneuser['sessionID'])) { ?>
 									
 									<td data-title="">
-										<a href="ban.php?name=<?php echo $oneuser['username'];?>" id="ban" class="ban">Ban(Active)</a>
+										<!-- <input type="hidden" name="token" value=""> -->
+										<a href="ban.php?name=<?php echo $oneuser['username']."&token=".$_SESSION['admintoken'];?>" id="ban" class="ban">Ban(ACTIVE)</a>
 									</td>
 								<?php
 								}
 								elseif(empty($oneuser['sessionID'])){?>
 									
 									<td data-title="">
-										<a href="ban.php?name=<?php echo $oneuser['username'];?>" id="ban" class="ban">Ban</a>
+										<!-- <input type="hidden" name="token" value=""> -->
+										<a href="ban.php?name=<?php echo $oneuser['username']."&token=".$_SESSION['admintoken'];?>" id="ban" class="ban">Ban</a>
 									</td>
 								<?php
 								}
@@ -347,6 +355,7 @@ if (isset($_SESSION['username'])) :
 
 
 		<?php
+		$_SESSION['adminfeedtoken'] = bin2hex(random_bytes(35));
 		$feeds = "SELECT * FROM feedbacks";
 		$feedresults = mysqli_query($readDB, $feeds);
 		$allfeeds=array();
@@ -372,7 +381,7 @@ if (isset($_SESSION['username'])) :
 									// $pdfortext='text';
 									$len=strlen($onefeed['feedback']);
 									if ($len>100) {
-										echo ('<p>'.substr($onefeed['feedback'],0,100).'...'.'<a href="readmore.php?id='.$onefeed['id'].'" id="readmore" class="ban" name="readmore">Read More</a></p>');
+										echo ('<p>'.substr($onefeed['feedback'],0,100).'...'.'<a href="readmore.php?id='.$onefeed['id']."&token=".$_SESSION['adminfeedtoken'].'" id="readmore" class="ban" name="readmore">Read More</a></p>');
 									}
 									else{
 										echo ('<p>'.$onefeed['feedback'].'</p>');

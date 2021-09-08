@@ -37,6 +37,7 @@
                         <h2>Edit Feedback</h2> 
                             <p> Please Edit your feedback below: </p>
         <?php
+        $_SESSION['edittoken'] = bin2hex(random_bytes(35)); 
             if ('text'==$link2) {
                 echo '<form role="form" action="" method="post" id="used_form"  >';
                 include('errors.php');
@@ -63,11 +64,13 @@
                             <button type="submit" class="btn btn-lg btn-block postbtn" name="editFEED">Post </button>
                         </div>
                     </div>
-                    <div class="rows">
+                    <input type="hidden" name="token" value="'.$_SESSION['edittoken'].'">
+					<div class="rows">
                         <div class="col-sm-12 form-group">
                             <button type="submit" class="btn btn-lg btn-block postbtn" name="cancel">Cancel </button>
                         </div>
                     </div>
+                    
                 </form>';
             }
             elseif('pdf'==$link2){
@@ -95,6 +98,7 @@
                             <button type="submit" class="btn btn-lg btn-block postbtn" name="editFILE">Post </button>
                         </div>
                     </div>
+                    <input type="hidden" name="token" value="'.$_SESSION['edittoken'].'">
                     <div class="rows">
                         <div class="col-sm-12 form-group">
                             <button type="submit" class="btn btn-lg btn-block postbtn" name="cancel">Cancel </button>
@@ -105,9 +109,7 @@
         
 
         ?>
-                        <div id="success_message" style="width:100%; height:100%; display:none; "> <h3>Posted your feedback successfully!</h3> </div>
-                        <div id="error_message" style="width:100%; height:100%; display:none; "> <h3>Error</h3> Sorry there was an error sending your form. </div>
-                    </div>
+                  </div>
                 </div>
             </div>
         </section>

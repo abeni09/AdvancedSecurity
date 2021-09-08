@@ -14,9 +14,19 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 
   }
   $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
   
-if (isset($_GET['name'])) {
+  if (isset($_GET['name']) & isset($_GET['token'])) {
+
     $link=$_GET['name'];
+    $tok=$_GET['token'];
     $id=mysqli_real_escape_string($readDB,$link);
+    $token=mysqli_real_escape_string($readDB,$tok);
+    
+    if (!$token || $token !== $_SESSION['admintoken']) {
+        // return 405 http status code
+        header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+        exit;
+    } 
+    else {
     if (isset($_SESSION['username'])) {
             $selAQ=mysqli_query($readDB,"SELECT * from dbadmin Where username= '$sessionExpire'");
             if(mysqli_num_rows($selAQ)==1){
@@ -65,6 +75,7 @@ if (isset($_GET['name'])) {
         header('location:login.php');
         echo "no session";
     }
+}
 }
 else{
     echo "no user selected to ban";

@@ -1,5 +1,10 @@
-<?php	include('server.php');?>
+<?php
+	include('server.php');
+	
+?>
 <?php 
+
+// $_SESSION['token'] = bin2hex(random_bytes(35));
 
 
 	if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 300)) {
@@ -254,6 +259,8 @@ if (isset($_SESSION['username'])) :
 		$user = mysqli_fetch_assoc($results);
 			$userSID=$user['sessionID'];
 			if($userSID===$sessionIDCrypted):
+				$_SESSION['token'] = bin2hex(random_bytes(35)); 
+				$_SESSION['adminfeedtoken'] = bin2hex(random_bytes(35)); 
  
 	
 ?>
@@ -300,7 +307,8 @@ if (isset($_SESSION['username'])) :
                     <h2>Feedback</h2> 
                     <p> Please provide your feedback below: </p>
                     <form role="form" action="index.php" method="post" id="used_form"  >
-						<?php include('errors.php'); ?>
+						<?php include('errors.php');
+						?>
 						<div class="rows">
                             <div class="col-sm-12 form-group">
                                 <label for="title"> Title</label>
@@ -313,6 +321,7 @@ if (isset($_SESSION['username'])) :
                                 <textarea style="resize: none;" required class="form-control" type="textarea" name="comments" id="comments" placeholder="Your Comments" maxlength="6000" rows="7"></textarea>
                             </div>
                         </div>
+						<input type="hidden" name="token" value="<?php echo $_SESSION['token'] ?? '' ?>">
 						<div class="rows">
                             <div class="col-sm-12 form-group">
                                 <input onclick="uploadfile()" type="checkbox" name="largefile" id="largefile" class="largefile" value="file"/>
@@ -327,7 +336,8 @@ if (isset($_SESSION['username'])) :
                     </form>
 
 					<form style="display: none;" role="form" action="index.php" method="post" id="reused_form"  enctype="multipart/form-data">
-						<?php include('errors.php'); ?>
+						<?php include('errors.php');
+						?>
 						<div class="rows">
                             <div class="col-sm-12 form-group">
                                 <label for="title"> Title</label>
@@ -340,6 +350,7 @@ if (isset($_SESSION['username'])) :
 								<label for="nolargefile"> I want to upload a pdf file</label>
                             </div>
                         </div>
+						<input type="hidden" name="token" value="<?php echo $_SESSION['token'] ?? '' ?>">
 						<div id="fileupload" class="rows">
                             <div class="col-sm-12 form-group">
                             	<input name="file" type="file" id="file" class="feedback-input">
@@ -390,7 +401,7 @@ if (isset($_SESSION['username'])) :
 									$pdfortext='text';
 									$len=strlen($onefeed['feedback']);
 									if ($len>100) {
-										echo ('<p>'.substr($onefeed['feedback'],0,100).'...'.'<a href="readmore.php?id='.$onefeed['id'].'" id="readmore" class="ban" name="readmore">Read More</a></p>');
+										echo ('<p>'.substr($onefeed['feedback'],0,100).'...'.'<a href="readmore.php?id='.$onefeed['id']."&token=".$_SESSION['adminfeedtoken'].'" id="readmore" class="ban" name="readmore">Read More</a></p>');
 									}
 									else{
 										echo ('<p>'.$onefeed['feedback'].'</p>');
@@ -400,7 +411,7 @@ if (isset($_SESSION['username'])) :
 							 ?>
 				</td>
 			<td>
-				<a href="review.php?id=<?php echo $onefeed['id'].'&top='.$pdfortext?>">Edit</a>
+				<a href="review.php?id=<?php echo $onefeed['id'].'&top='.$pdfortext.'&token='.$_SESSION['token']?>">Edit</a>
 			</td>
 			<td>
 				<a href="delete.php?id=<?php echo $onefeed['id']?>">Delete</a>

@@ -4,14 +4,15 @@
 if (isset($_POST['reg_user'])) {
   // echo"damn";
   // receive all input values from the form
-  $username = mysqli_real_escape_string($readDB, trim($_POST['username']));
-  $email = mysqli_real_escape_string($readDB, trim($_POST['email']));
-  $password_1 = mysqli_real_escape_string($readDB, trim($_POST['password_1']));
-  $password_2 = mysqli_real_escape_string($readDB, trim($_POST['password_2'])); 
+  $username = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['username'])));
+  $email = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['email'])));
+  $password_1 = mysqli_real_escape_string($readDB, ($_POST['password_1']));
+  $password_2 = mysqli_real_escape_string($readDB, ($_POST['password_2'])); 
   if (empty($username)) { array_push($errors, "Username is required"); }
-  if ($username == "admin" or $username == "ADMIN") { array_push($errors, "Username already taken."); }
+  if ($username == "admin" or $username == "ADMIN" or $username == "AdMiN" or $username == "aDmIn") { array_push($errors, "Username already taken."); }
   if (empty($email)) { array_push($errors, "Email is required"); }
   if (empty($password_1)) { array_push($errors, "Password is required"); }
+  if (strlen($password_1)<8) { array_push($errors, "Password must be atlease 8 characters long"); }
   if ($password_1 != $password_2) {
 	array_push($errors, "The two passwords do not match");
   }
@@ -54,7 +55,7 @@ if (isset($_POST['login_user'])) {
     // header("index.php");
   }
   else
-    $username = mysqli_real_escape_string($readDB, trim($_POST['username']));
+    $username = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['username'])));
     $password = mysqli_real_escape_string($readDB, ($_POST['password']));
   
     if (empty($username)) {
@@ -139,6 +140,14 @@ if (isset($_POST['login_user'])) {
 
    //submit feedback(text)
   if (isset($_POST['saveTEXT'])) {
+    $texttoken = filter_input(INPUT_POST, 'token', FILTER_SANITIZE_STRING);
+    if (!$texttoken || $texttoken !== $_SESSION['token']) {
+        // return 405 http status code
+        // header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+        // exit;
+        // echo 'vbnm,';
+    } 
+    else {
     $feedbackfrom = $_SESSION['username'];
     $userDetFetch=mysqli_query($readDB,"SELECT * from users WHERE username='$feedbackfrom'");
     if (mysqli_num_rows($userDetFetch)==1){
@@ -150,12 +159,12 @@ if (isset($_POST['login_user'])) {
         // array_push($errors,"what");
       }
       else{
-        $feedtitle = mysqli_real_escape_string($readDB, trim($_POST['title']));
+        $feedtitle = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['title'])));
         if (empty($feedtitle)) {
           array_push($errors, "Title is required");
           }
         if (!empty($feedbackfrom)) {
-            $feedcomment = mysqli_real_escape_string($readDB, trim($_POST['comments']));
+            $feedcomment = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['comments'])));
             if (empty($feedcomment)) {
               array_push($errors, "Comment is required");
               }
@@ -164,6 +173,7 @@ if (isset($_POST['login_user'])) {
                     VALUES('$feedtitle', '$feedcomment', '$feedbackfrom')";
               if(mysqli_query($writeDB, $query)){
                 array_push($errors, "Your feedback has been successfully submitted!");
+                unset($_SESSION['token']);
               }
               else{
                 array_push($errors, "Unable to submit your feedback!");
@@ -180,10 +190,18 @@ if (isset($_POST['login_user'])) {
       header('location:login.php');
       // array_push($errors,"ohh");
     }
+  }
     
   }
    //submit feedback(file)
   if (isset($_POST['savePDF'])) {
+    $token = filter_input(INPUT_POST, 'token', FILTER_SANITIZE_STRING);
+    if (!$token || $token !== $_SESSION['token']) {
+        // return 405 http status code
+        header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+        exit;
+    } 
+    else {
     $feedbackfrom = $_SESSION['username'];
     $userDetFetch=mysqli_query($readDB,"SELECT * from users WHERE username='$feedbackfrom'");
     $userDet=mysqli_fetch_assoc($userDetFetch);
@@ -192,7 +210,7 @@ if (isset($_POST['login_user'])) {
       header('Location:login.php');
     }
     else{
-      $feedtitle = mysqli_real_escape_string($readDB, trim($_POST['title']));
+      $feedtitle = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['title'])));
       if (empty($feedtitle)) {
         array_push($errors, "Title is required");
         }
@@ -224,6 +242,7 @@ if (isset($_POST['login_user'])) {
                     VALUES('$feedtitle', '$fileName', '$feedbackfrom')";
               if(mysqli_query($writeDB, $query)){
                 array_push($errors, "Your feedback has been successfully submitted!");
+                unset($_SESSION['token']);
               }
               else{
                 array_push($errors, "Unable to upload your file!");
@@ -241,6 +260,7 @@ if (isset($_POST['login_user'])) {
       }
 
     }
+  }
  }
 
     #admin login
@@ -256,8 +276,8 @@ if (isset($_POST['login_user'])) {
       }
       else
         // array_push($errors,$total_count);
-        $adminname = mysqli_real_escape_string($readDB, trim($_POST['username']));
-        $adminpassword = mysqli_real_escape_string($readDB, trim($_POST['password']));
+        $adminname = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['username'])));
+        $adminpassword = mysqli_real_escape_string($readDB, ($_POST['password']));
         $sw = mysqli_real_escape_string($readDB, trim($_POST['sw']));
       
         if (empty($adminname)) {
@@ -438,11 +458,15 @@ if (isset($_POST['login_user'])) {
 
     //delete feedback
 
+
+
   // $readDB->close();
   // $writeDB->close();
   // $db->close();
   // $updateDB->close();
   // $deleteDB->close();
+
+
   
   ?>
   
