@@ -4,6 +4,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+
   <title>Help My City</title>
   <style>
 	  * {
@@ -83,7 +84,7 @@
   	<h2>Sign up</h2>
   </div>
 	
-  <form method="post" action="signup.php">
+  <form method="post" action="signup.php" autocomplete="off">
   	<?php include('errors.php'); ?>
   	<div class="input-group">
   	  <label>Username</label>
@@ -103,7 +104,9 @@
   	</div>
   	<div class="input-group">
       <img src="captcha.png" alt="CAPTCHA" class="captchaimage">
-  	  <input required type="text" id="captcha" name="captcha_challenge" pattern="[A-Z]{6}">
+      <!-- <button class="refreshB" type="reset" name="refreshCaptcha"><img id="refresh" style="width: 35px; height:45px;" src="crefresh.png" alt="REFRESH"></button> -->
+  	  <input required type="text" id="captcha" name="captcha_challenge">
+      <!-- <button type="submit" class="btn" name="refreshCaptcha">Refresh</button> -->
   	</div>
   	<div class="input-group">
   	  <button type="submit" class="btn" name="reg_user">Sign up</button>
