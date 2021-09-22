@@ -57,7 +57,7 @@ if (isset($_POST['login_user'])) {
     // header("index.php");
   }
   else
-  if(isset($_POST['captcha_challenge']) && $_POST['captcha_challenge'] == $_SESSION['captcha_text']) {
+  // if(isset($_POST['captcha_challenge']) && $_POST['captcha_challenge'] == $_SESSION['captcha_text']) {
   
     $username = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['username'])));
     $password = mysqli_real_escape_string($readDB, ($_POST['password']));
@@ -101,7 +101,7 @@ if (isset($_POST['login_user'])) {
             array_push($errors, "Wrong username/password combination");
         }
     }
-  }
+  // }
   
   else {
     array_push($errors, "Incorrect captcha");
@@ -152,6 +152,7 @@ if (isset($_POST['login_user'])) {
   if (isset($_POST['saveTEXT'])) {
     $texttoken = filter_input(INPUT_POST, 'token', FILTER_SANITIZE_STRING);
     $captchaKey = mysqli_real_escape_string($readDB, trim(htmlEntities($_POST['captcha_challenge'])));
+    if (isset($_SESSION['token'])) {
     if (!$texttoken || $texttoken !== $_SESSION['token']) {
         // return 405 http status code
         header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
@@ -207,6 +208,11 @@ if (isset($_POST['login_user'])) {
   }
 
 }
+  }
+  else{
+    header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+    exit;
+  }
     
   }
    //submit feedback(file)

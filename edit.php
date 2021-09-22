@@ -24,7 +24,7 @@ if (isset($_GET['id']) & isset($_GET['top']) & isset($_GET['token'])) {
     if (!$token || $token !== $_SESSION['token']) {
         // return 405 http status code
         header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
-        exit;
+        // exit;
     } 
     else {
     if (isset($_SESSION['username'])) {
@@ -74,7 +74,7 @@ if (isset($_GET['id']) & isset($_GET['top']) & isset($_GET['token'])) {
                                 if (!$edittoken || $edittoken !== $_SESSION['edittoken']) {
                                     // return 405 http status code
                                     header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
-                                    exit;
+                                    // exit;
                                 }
                                 else{
                                 if (empty($feedtitle)) {
@@ -109,7 +109,7 @@ if (isset($_GET['id']) & isset($_GET['top']) & isset($_GET['token'])) {
                             if (!$edittoken || $edittoken !== $_SESSION['edittoken']) {
                                 // return 405 http status code
                                 header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
-                                exit;
+                                // exit;
                             }
                             else{
                             if (empty($feedtitle)) {

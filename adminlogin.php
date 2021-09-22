@@ -81,7 +81,7 @@
   	<h2>Admin Login</h2>
   </div>
 	 
-  <form method="post" action="adminlogin.php">
+  <form method="post" action="adminlogin.php" autocomplete="off">
   	<?php include('errors.php');?>
   	<div class="input-group">
   		<label>Username</label>
